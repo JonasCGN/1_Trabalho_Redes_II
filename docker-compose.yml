@@ -1,0 +1,102 @@
+networks:
+  rede1:
+    driver: bridge
+    ipam:
+      config:
+      - gateway: 172.21.1.1
+        subnet: 172.21.1.0/24
+  rede2:
+    driver: bridge
+    ipam:
+      config:
+      - gateway: 172.21.2.1
+        subnet: 172.21.2.0/24
+  rede3:
+    driver: bridge
+    ipam:
+      config:
+      - gateway: 172.21.3.1
+        subnet: 172.21.3.0/24
+services:
+  host1:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host1
+    networks:
+      rede1:
+        ipv4_address: 172.21.1.10
+  host2:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host2
+    networks:
+      rede2:
+        ipv4_address: 172.21.2.11
+  host3:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host3
+    networks:
+      rede3:
+        ipv4_address: 172.21.3.12
+  host4:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host4
+    networks:
+      rede1:
+        ipv4_address: 172.21.1.13
+  host5:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host5
+    networks:
+      rede2:
+        ipv4_address: 172.21.2.14
+  host6:
+    build:
+      context: ./docker/host
+      dockerfile: Dockerfile
+    container_name: host6
+    networks:
+      rede3:
+        ipv4_address: 172.21.3.15
+  roteador1:
+    build:
+      context: ./docker/roteador
+      dockerfile: Dockerfile
+    container_name: roteador1
+    environment:
+    - ROTEADOR_ID=roteador1
+    - VIZINHOS={}
+    networks:
+      rede1:
+        ipv4_address: 172.21.1.2
+  roteador2:
+    build:
+      context: ./docker/roteador
+      dockerfile: Dockerfile
+    container_name: roteador2
+    environment:
+    - ROTEADOR_ID=roteador2
+    - VIZINHOS={}
+    networks:
+      rede2:
+        ipv4_address: 172.21.2.2
+  roteador3:
+    build:
+      context: ./docker/roteador
+      dockerfile: Dockerfile
+    container_name: roteador3
+    environment:
+    - ROTEADOR_ID=roteador3
+    - VIZINHOS={}
+    networks:
+      rede3:
+        ipv4_address: 172.21.3.2
+version: '3.8'
