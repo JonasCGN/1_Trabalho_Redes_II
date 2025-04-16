@@ -5,18 +5,6 @@ networks:
 - name: rede2
   subnet: 172.21.1.0/24
   gateway: 172.21.1.1
-- name: rede3
-  subnet: 172.21.2.0/24
-  gateway: 172.21.2.1
-- name: rede4
-  subnet: 172.21.3.0/24
-  gateway: 172.21.3.1
-- name: rede5
-  subnet: 172.21.4.0/24
-  gateway: 172.21.4.1
-- name: rede6
-  subnet: 172.21.5.0/24
-  gateway: 172.21.5.1
 routers:
 - id: roteador1
   networks:
@@ -25,7 +13,7 @@ routers:
   - name: rede2
     ip: 172.21.1.3
   neighbors:
-  - id: roteador6
+  - id: roteador2
     cost: 10
   - id: roteador2
     cost: 10
@@ -33,54 +21,10 @@ routers:
   networks:
   - name: rede2
     ip: 172.21.1.2
-  - name: rede3
-    ip: 172.21.2.3
-  neighbors:
-  - id: roteador1
-    cost: 10
-  - id: roteador3
-    cost: 10
-- id: roteador3
-  networks:
-  - name: rede3
-    ip: 172.21.2.2
-  - name: rede4
-    ip: 172.21.3.3
-  neighbors:
-  - id: roteador2
-    cost: 10
-  - id: roteador4
-    cost: 10
-- id: roteador4
-  networks:
-  - name: rede4
-    ip: 172.21.3.2
-  - name: rede5
-    ip: 172.21.4.3
-  neighbors:
-  - id: roteador3
-    cost: 10
-  - id: roteador5
-    cost: 10
-- id: roteador5
-  networks:
-  - name: rede5
-    ip: 172.21.4.2
-  - name: rede6
-    ip: 172.21.5.3
-  neighbors:
-  - id: roteador4
-    cost: 10
-  - id: roteador6
-    cost: 10
-- id: roteador6
-  networks:
-  - name: rede6
-    ip: 172.21.5.2
   - name: rede1
     ip: 172.21.0.3
   neighbors:
-  - id: roteador5
+  - id: roteador1
     cost: 10
   - id: roteador1
     cost: 10
@@ -91,105 +35,9 @@ hosts:
 - name: h1b
   network: rede1
   ip: 172.21.0.11
-- name: h1c
-  network: rede1
-  ip: 172.21.0.12
-- name: h1d
-  network: rede1
-  ip: 172.21.0.13
-- name: h1e
-  network: rede1
-  ip: 172.21.0.14
-- name: h1f
-  network: rede1
-  ip: 172.21.0.15
 - name: h2a
   network: rede2
   ip: 172.21.1.10
 - name: h2b
   network: rede2
   ip: 172.21.1.11
-- name: h2c
-  network: rede2
-  ip: 172.21.1.12
-- name: h2d
-  network: rede2
-  ip: 172.21.1.13
-- name: h2e
-  network: rede2
-  ip: 172.21.1.14
-- name: h2f
-  network: rede2
-  ip: 172.21.1.15
-- name: h3a
-  network: rede3
-  ip: 172.21.2.10
-- name: h3b
-  network: rede3
-  ip: 172.21.2.11
-- name: h3c
-  network: rede3
-  ip: 172.21.2.12
-- name: h3d
-  network: rede3
-  ip: 172.21.2.13
-- name: h3e
-  network: rede3
-  ip: 172.21.2.14
-- name: h3f
-  network: rede3
-  ip: 172.21.2.15
-- name: h4a
-  network: rede4
-  ip: 172.21.3.10
-- name: h4b
-  network: rede4
-  ip: 172.21.3.11
-- name: h4c
-  network: rede4
-  ip: 172.21.3.12
-- name: h4d
-  network: rede4
-  ip: 172.21.3.13
-- name: h4e
-  network: rede4
-  ip: 172.21.3.14
-- name: h4f
-  network: rede4
-  ip: 172.21.3.15
-- name: h5a
-  network: rede5
-  ip: 172.21.4.10
-- name: h5b
-  network: rede5
-  ip: 172.21.4.11
-- name: h5c
-  network: rede5
-  ip: 172.21.4.12
-- name: h5d
-  network: rede5
-  ip: 172.21.4.13
-- name: h5e
-  network: rede5
-  ip: 172.21.4.14
-- name: h5f
-  network: rede5
-  ip: 172.21.4.15
-- name: h6a
-  network: rede6
-  ip: 172.21.5.10
-- name: h6b
-  network: rede6
-  ip: 172.21.5.11
-- name: h6c
-  network: rede6
-  ip: 172.21.5.12
-- name: h6d
-  network: rede6
-  ip: 172.21.5.13
-- name: h6e
-  network: rede6
-  ip: 172.21.5.14
-- name: h6f
-  network: rede6
-  ip: 172.21.5.15

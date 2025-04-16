@@ -71,4 +71,4 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
 
     print("Arquivo 'config.yaml' gerado com sucesso!")
 
-gerar_yaml(6, 6)
+gerar_yaml(4, 2)

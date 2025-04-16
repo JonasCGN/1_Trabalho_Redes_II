@@ -35,7 +35,7 @@ def main():
         networks=config['networks']
     )
 
-    with open('docker-compose.yml', 'w') as f:
+    with open('../docker-compose.yml', 'w') as f:
         f.write(output)
 
 if __name__ == '__main__':
