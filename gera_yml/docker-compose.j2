@@ -1,0 +1,45 @@
+version: '3.8'
+
+x-router-base: &router_base
+  build:
+    context: ./docker/roteador
+    dockerfile: Dockerfile
+
+x-host-base: &host_base
+  build:
+    context: ./docker/host
+    dockerfile: Dockerfile
+
+services:
+{% for router in routers %}
+  {{ router.id }}:
+    <<: *router_base
+    container_name: {{ router.id }}
+    environment:
+      - ROTEADOR_ID={{ router.id }}
+      - VIZINHOS={ {{ router.neighbors_str }} }
+    networks:
+{% for network in router.networks %}
+      {{ network.name }}:
+        ipv4_address: {{ network.ip }}
+{% endfor %}
+{% endfor %}
+
+{% for host in hosts %}
+  {{ host.name }}:
+    <<: *host_base
+    container_name: {{ host.name }}
+    networks:
+      {{ host.network }}:
+        ipv4_address: {{ host.ip }}
+{% endfor %}
+
+networks:
+{% for network in networks %}
+  {{ network.name }}:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: {{ network.subnet }}
+          gateway: {{ network.gateway }}
+{% endfor %}

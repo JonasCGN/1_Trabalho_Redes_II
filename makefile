@@ -1,6 +1,8 @@
 all:
 	@python docker_compose_create.py
-	@docker compose up --build
+	@python gerar_yaml.py
+	@docker-compose up --build
+	# @docker-compose up -d --build --remove-orphans
 
 clean:
 	docker compose down --rmi all --volumes --remove-orphans
