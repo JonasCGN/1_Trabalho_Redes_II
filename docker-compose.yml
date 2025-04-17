@@ -1,6 +1,8 @@
 version: '3.8'
 
 x-router-base: &router_base
+  cap_add:
+    - NET_ADMIN
   build:
     context: ./docker/roteador
     dockerfile: Dockerfile
@@ -17,7 +19,8 @@ services:
     container_name: roteador1
     environment:
       - ROTEADOR_ID=roteador1
-      - VIZINHOS={ "roteador2":["172.21.0.3",10],"roteador2":["172.21.0.3",10] }
+      - ENDERECO_IP=172.21.0.2
+      - VIZINHOS={ "roteador6":["172.21.5.2",10],"roteador2":["172.21.1.2",10] }
     networks:
 
       rede1:
@@ -26,20 +29,103 @@ services:
       rede2:
         ipv4_address: 172.21.1.3
 
+      rede6:
+        ipv4_address: 172.21.5.4
+
 
   roteador2:
     <<: *router_base
     container_name: roteador2
     environment:
       - ROTEADOR_ID=roteador2
-      - VIZINHOS={ "roteador1":["172.21.1.3",10],"roteador1":["172.21.1.3",10] }
+      - ENDERECO_IP=172.21.1.2
+      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador3":["172.21.2.2",10] }
     networks:
 
       rede2:
         ipv4_address: 172.21.1.2
 
+      rede3:
+        ipv4_address: 172.21.2.3
+
+      rede1:
+        ipv4_address: 172.21.0.4
+
+
+  roteador3:
+    <<: *router_base
+    container_name: roteador3
+    environment:
+      - ROTEADOR_ID=roteador3
+      - ENDERECO_IP=172.21.2.2
+      - VIZINHOS={ "roteador2":["172.21.1.2",10],"roteador4":["172.21.3.2",10] }
+    networks:
+
+      rede3:
+        ipv4_address: 172.21.2.2
+
+      rede4:
+        ipv4_address: 172.21.3.3
+
+      rede2:
+        ipv4_address: 172.21.1.4
+
+
+  roteador4:
+    <<: *router_base
+    container_name: roteador4
+    environment:
+      - ROTEADOR_ID=roteador4
+      - ENDERECO_IP=172.21.3.2
+      - VIZINHOS={ "roteador3":["172.21.2.2",10],"roteador5":["172.21.4.2",10] }
+    networks:
+
+      rede4:
+        ipv4_address: 172.21.3.2
+
+      rede5:
+        ipv4_address: 172.21.4.3
+
+      rede3:
+        ipv4_address: 172.21.2.4
+
+
+  roteador5:
+    <<: *router_base
+    container_name: roteador5
+    environment:
+      - ROTEADOR_ID=roteador5
+      - ENDERECO_IP=172.21.4.2
+      - VIZINHOS={ "roteador4":["172.21.3.2",10],"roteador6":["172.21.5.2",10] }
+    networks:
+
+      rede5:
+        ipv4_address: 172.21.4.2
+
+      rede6:
+        ipv4_address: 172.21.5.3
+
+      rede4:
+        ipv4_address: 172.21.3.4
+
+
+  roteador6:
+    <<: *router_base
+    container_name: roteador6
+    environment:
+      - ROTEADOR_ID=roteador6
+      - ENDERECO_IP=172.21.5.2
+      - VIZINHOS={ "roteador5":["172.21.4.2",10],"roteador1":["172.21.0.2",10] }
+    networks:
+
+      rede6:
+        ipv4_address: 172.21.5.2
+
       rede1:
         ipv4_address: 172.21.0.3
+
+      rede5:
+        ipv4_address: 172.21.4.4
 
 
 
@@ -72,6 +158,62 @@ services:
       rede2:
         ipv4_address: 172.21.1.11
 
+  h3a:
+    <<: *host_base
+    container_name: h3a
+    networks:
+      rede3:
+        ipv4_address: 172.21.2.10
+
+  h3b:
+    <<: *host_base
+    container_name: h3b
+    networks:
+      rede3:
+        ipv4_address: 172.21.2.11
+
+  h4a:
+    <<: *host_base
+    container_name: h4a
+    networks:
+      rede4:
+        ipv4_address: 172.21.3.10
+
+  h4b:
+    <<: *host_base
+    container_name: h4b
+    networks:
+      rede4:
+        ipv4_address: 172.21.3.11
+
+  h5a:
+    <<: *host_base
+    container_name: h5a
+    networks:
+      rede5:
+        ipv4_address: 172.21.4.10
+
+  h5b:
+    <<: *host_base
+    container_name: h5b
+    networks:
+      rede5:
+        ipv4_address: 172.21.4.11
+
+  h6a:
+    <<: *host_base
+    container_name: h6a
+    networks:
+      rede6:
+        ipv4_address: 172.21.5.10
+
+  h6b:
+    <<: *host_base
+    container_name: h6b
+    networks:
+      rede6:
+        ipv4_address: 172.21.5.11
+
 
 networks:
 
@@ -88,3 +230,31 @@ networks:
       config:
         - subnet: 172.21.1.0/24
           gateway: 172.21.1.1
+
+  rede3:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.2.0/24
+          gateway: 172.21.2.1
+
+  rede4:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.3.0/24
+          gateway: 172.21.3.1
+
+  rede5:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.4.0/24
+          gateway: 172.21.4.1
+
+  rede6:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.5.0/24
+          gateway: 172.21.5.1

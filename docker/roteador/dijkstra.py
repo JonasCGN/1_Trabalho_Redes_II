@@ -1,37 +1,70 @@
-import heapq
-
-def dijkstra(roteador_id, lsdb):
-    # Criar grafo a partir da LSDB
+def dijkstra(origem,lsdb):
+    # 1. Construir o grafo corretamente incluindo todos os roteadores
+    # lsdb = {
+    #     'roteador6': {
+    #         'id': 'roteador6', 
+    #         'ip': '172.21.5.2', 
+    #         'vizinhos': {
+    #             'roteador5': {'ip': '172.21.4.2', 'custo': 10}, 
+    #             'roteador1': {'ip': '172.21.0.2', 'custo': 10}
+    #         }, 
+    #         'seq': 2
+    #     }, 
+    #     'roteador2': {
+    #         'id': 'roteador2', 
+    #         'ip': '172.21.1.2', 
+    #         'vizinhos': {
+    #               'roteador1': {'ip': '172.21.0.2', 'custo': 10}, 
+    #               'roteador3': {'ip': '172.21.2.2', 'custo': 10}
+    #            }, 
+    #           'seq': 2
+    #        },
+    # }
+    tabela_ip = {}
+    tabela_ip = {viz: info["ip"] for viz, info in lsdb.items()}
+    for _,valores in lsdb.items():
+        for viz, info in valores["vizinhos"].items():
+            tabela_ip[viz] = info["ip"]
+                
     grafo = {}
-    for r_id, dados in lsdb.items():
-        grafo[r_id] = {}
-        for viz, info in dados["vizinhos"].items():
-            grafo[r_id][viz] = info["custo"]
+    all_routers = set(lsdb.keys())
+    
+    for router_id, lsa in lsdb.items():
+        vizinhos = lsa["vizinhos"]
+        grafo[router_id] = {viz: info["custo"] for viz, info in vizinhos.items()}
+        all_routers.update(vizinhos.keys())
+        
+    for router in all_routers:
+        if router not in grafo:
+            grafo[router] = {}
+    
+    distancias = {router: float('inf') for router in grafo}
+    distancias[origem] = 0
+    visitados = set()
+    rotas = {router: None for router in grafo}
+    
+    while len(visitados) < len(grafo):
+        atual = min((router for router in grafo if router not in visitados), key=lambda r: distancias[r])
+        for vizinho, custo in grafo[atual].items():
+            if vizinho not in visitados:
+                if distancias[atual] == float('inf'):
+                    nova_distancia = custo
+                else:
+                    nova_distancia = distancias[atual] + custo
+                    
+                if nova_distancia < distancias[vizinho]:
+                    distancias[vizinho] = nova_distancia
+                    rotas[vizinho] = atual
+        
+        visitados.add(atual)
+    tabela_rotas = {}
+    for destino, prox_salto in rotas.items():
+        if prox_salto is not None:
+            # tabela_rotas[tabela_ip[destino]] = tabela_ip[prox_salto]
+            tabela_rotas[destino] = prox_salto
+    
+    return tabela_rotas
 
-    # Inicializações
-    dist = {n: float('inf') for n in grafo}
-    prev = {n: None for n in grafo}
-    dist[roteador_id] = 0
-    fila = [(0, roteador_id)]
-
-    while fila:
-        custo_atual, atual = heapq.heappop(fila)
-        for vizinho, peso in grafo.get(atual, {}).items():
-            nova_dist = custo_atual + peso
-            if nova_dist < dist[vizinho]:
-                dist[vizinho] = nova_dist
-                prev[vizinho] = atual
-                heapq.heappush(fila, (nova_dist, vizinho))
-
-    # Construir tabela de next-hops
-    next_hop = {}
-    for destino in grafo:
-        if destino == roteador_id or prev[destino] is None:
-            continue
-        # Caminho reverso
-        hop = destino
-        while prev[hop] != roteador_id:
-            hop = prev[hop]
-        next_hop[destino] = hop
-
-    return next_hop
+if __name__ == "__main__":
+    # Exemplo de uso
+    dijkstra("roteador1",{})

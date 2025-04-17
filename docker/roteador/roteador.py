@@ -1,43 +1,47 @@
 import threading
+import time
 import socket
 import json
-import os
+import os 
+import subprocess
 from dijkstra import dijkstra
 
 ROTEADOR_ID = os.getenv("ROTEADOR_ID")
-VIZINHOS = json.loads(os.getenv("VIZINHOS"))  # {"roteador2": ["192.168.100.2", 10]}
-
-LSDB = {}  # { "roteador1": {vizinhos..., seq: 1} }
+ENDERECO_IP = os.getenv("ENDERECO_IP")
+VIZINHOS = json.loads(os.getenv("VIZINHOS"))
 
 PORTA_LSA = 5000
 
-# Evento para sinalizar quando atualizar a tabela
-atualizar_evento = threading.Event()
-
 def adicionar_rotas(tabela):
     for destino, prox_salto in tabela.items():
-        ip_destino = f"192.168.{destino.split('R')[1]}.1"  # Simples mapeamento
-        ip_prox_salto = f"192.168.{prox_salto.split('R')[1]}.1"
-        comando = f"route add {ip_destino} mask 255.255.255.0 {ip_prox_salto}"
-        os.system(comando)  # Executa o comando no sistema
-        print(f"[{ROTEADOR_ID}] Adicionada rota para {ip_destino} via {ip_prox_salto}")
+        
+        destino = f"172.21.{int(destino.split('r')[-1]) - 1}.0/24"
+        prox_salto = f"172.21.{int(prox_salto.split('r')[-1]) - 1}.2"
+        comando = f"ip route add {destino} via {prox_salto}".split()
+        print(f"[{ROTEADOR_ID}] Executando: {comando}")
+        try:
+            subprocess.run(comando,capture_output=True,text=True,check=True)  # Executa o comando no sistema operacional
+        except Exception as e:
+            print(f"[{ROTEADOR_ID}] Erro ao adicionar rota: {e}") 
 
-def atualizar_tabela():
+def atualizar_tabela(lsdb):
     while True:
-        # Aguarda o sinal de atualização
-        atualizar_evento.wait()
-        tabela = dijkstra(ROTEADOR_ID, LSDB)  # Obtém a tabela de rotas
-        print(f"[{ROTEADOR_ID}] Nova tabela de rotas:")
+        # print('Atualizar Tabela:',lsdb)
+        tabela = {}
+        if lsdb:
+            tabela = dijkstra(ROTEADOR_ID, lsdb)  # Obtém a tabela de rotas
         
-        # Adiciona as rotas no sistema
-        for destino, prox_salto in tabela.items():
-            print(f"  {destino} → via {prox_salto}")
-        
-        # Adiciona as rotas com o comando `route add`
-        adicionar_rotas(tabela)  # Passa a tabela como argumento
-
-        # Após a atualização, limpa o evento para esperar o próximo ciclo
-        atualizar_evento.clear()
+        if tabela:
+            print(f"[{ROTEADOR_ID}] Nova tabela de rotas:")
+            
+            # Adiciona as rotas no sistema
+            for destino, prox_salto in tabela.items():
+                print(f"  {destino} → via {prox_salto}")
+            
+            adicionar_rotas(tabela) 
+        else:
+            print(f"[{ROTEADOR_ID}] Nenhuma rota encontrada.")
+        time.sleep(5)
 
 def enviar_lsa():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -46,55 +50,87 @@ def enviar_lsa():
         seq += 1
         lsa = {
             "id": ROTEADOR_ID,
+            "ip": ENDERECO_IP,
             "vizinhos": {
-                viz: {"ip": ip, "custo": custo}
-                for viz, (ip, custo) in VIZINHOS.items()
+                viz: {"ip": ip, "custo": custo} for viz, (ip, custo) in VIZINHOS.items()
             },
             "seq": seq
         }
+        print(f"[{ROTEADOR_ID}] Enviando LSA para: {VIZINHOS.keys()}")
+        
         mensagem = json.dumps(lsa).encode()
         for viz, (ip, _) in VIZINHOS.items():
             sock.sendto(mensagem, (ip, PORTA_LSA))
         
-        # Ao enviar a LSA, sinalizamos que a tabela precisa ser atualizada
-        atualizar_evento.set()
+        time.sleep(5)  
 
-        # Espera pela próxima atualização de LSA
-        # A cada intervalo maior, por exemplo, 5 segundos (ajustável)
-        sock.settimeout(5)
+# -------------------------------------------------------------------------
+# def receber_lsa(lsdb):
+#     while True:
+#         # print('Receber LSA:',lsdb)
+#         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#         sock.bind(("0.0.0.0", PORTA_LSA))
+#         while True:
+#             dados, _ = sock.recvfrom(4096)
+#             lsa = json.loads(dados.decode())
+#             print(f"[{ROTEADOR_ID}] Recebendo LSA: {lsa}")
+#             origem = lsa["id"]
+#             if origem not in lsdb or lsa["seq"] > lsdb[origem]["seq"]:
+#                 lsdb[origem] = lsa
+                
+#             print(f"[{ROTEADOR_ID}] Recebendo LSA de {origem}: {lsa}")
+            
+#             time.sleep(5)  
+# ----------------------------------------------------------------------
 
-def receber_lsa():
+def receber_lsa(lsdb):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("0.0.0.0", PORTA_LSA))
     while True:
-        try:
-            dados, _ = sock.recvfrom(4096)
-            lsa = json.loads(dados.decode())
-            origem = lsa["id"]
-            if origem not in LSDB or lsa["seq"] > LSDB[origem]["seq"]:
-                LSDB[origem] = lsa
-                print(f"[{ROTEADOR_ID}] Atualizou LSDB com LSA de {origem}")
-                # Ao receber uma nova LSA, sinalizamos para atualizar a tabela
-                atualizar_evento.set()
-        except socket.timeout:
-            continue  # Apenas ignora o timeout
+        dados, addr = sock.recvfrom(4096)  # Recebe dados e endereço do remetente
+        sender_ip = addr[0]  # Extrai o IP do remetente
+        lsa = json.loads(dados.decode())
+        origem = lsa["id"]
+        
+        # Atualiza o LSDB apenas se o LSA for mais recente
+        if origem not in lsdb or lsa["seq"] > lsdb[origem]["seq"]:
+            lsdb[origem] = lsa
+            # Encaminha o LSA para todos os vizinhos (exceto o remetente)
+            for viz, (ip, _) in VIZINHOS.items():
+                if ip != sender_ip:
+                    sock.sendto(dados, (ip, PORTA_LSA))
+                    print(f"[{ROTEADOR_ID}] Encaminhando LSA para {viz} ({ip})")
+    
+def verificaLSDB(lsdb):
+    while True:
+        if lsdb:
+            print(f"[{ROTEADOR_ID}] LSDB atual:")
+            for router_id, lsa in lsdb.items():
+                print(f"Id:{router_id}: lsa:{lsa}")
+        else:
+            print(f"[{ROTEADOR_ID}] LSDB vazia.")
+            
+        time.sleep(5) 
 
 def iniciar_threads():
+    lsdb = {}
+    
     t1 = threading.Thread(target=enviar_lsa)
-    t2 = threading.Thread(target=receber_lsa)
-    t3 = threading.Thread(target=atualizar_tabela)
-
+    t2 = threading.Thread(target=receber_lsa, args=(lsdb,))
+    t3 = threading.Thread(target=atualizar_tabela, args=(lsdb,))
+    t4 = threading.Thread(target=verificaLSDB, args=(lsdb,))
+    
     t1.daemon = True
     t2.daemon = True
     t3.daemon = True
+    t4.daemon = True
     
     t1.start()
     t2.start()
     t3.start()
+    t4.start()
 
-    while True:
-        # Aqui podemos adicionar qualquer outro comportamento necessário, ou apenas deixar o programa rodando
-        pass
+    threading.Event().wait()
 
 if __name__ == "__main__":
     print(f"[{ROTEADOR_ID}] Iniciado com vizinhos: {VIZINHOS}")

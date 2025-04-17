@@ -1,5 +1,4 @@
-# Dockerfile para o roteador
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -10,7 +9,13 @@ COPY dijkstra.py /app/dijkstra.py
 COPY requirements.txt /app/
 
 # Instalar dependências
-RUN apt update && apt install -y iproute2 iputils-ping net-tools
+RUN apt update && apt install -y \
+    iproute2 \
+    iputils-ping \
+    net-tools \
+    traceroute  # Instalar o traceroute
+
+# Instalar as dependências Python
 RUN pip install -r requirements.txt
 
 # Comando para iniciar o roteador

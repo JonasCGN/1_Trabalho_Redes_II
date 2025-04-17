@@ -1,6 +1,8 @@
 version: '3.8'
 
 x-router-base: &router_base
+  cap_add:
+    - NET_ADMIN
   build:
     context: ./docker/roteador
     dockerfile: Dockerfile
@@ -17,6 +19,7 @@ services:
     container_name: {{ router.id }}
     environment:
       - ROTEADOR_ID={{ router.id }}
+      - ENDERECO_IP={{ router.ip }}
       - VIZINHOS={ {{ router.neighbors_str }} }
     networks:
 {% for network in router.networks %}

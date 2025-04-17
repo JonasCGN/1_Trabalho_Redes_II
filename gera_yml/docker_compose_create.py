@@ -10,20 +10,17 @@ def main():
     routers = []
     for router in config['routers']:
         neighbors = []
-        for neighbor in router['neighbors']:
-            # Encontrar roteador vizinho
-            neighbor_router = next(r for r in config['routers'] if r['id'] == neighbor['id'])
-            # Encontrar rede compartilhada
-            shared_network = next(n['name'] for n in router['networks'] if n['name'] in [rn['name'] for rn in neighbor_router['networks']])
-            # Pegar IP do vizinho na rede compartilhada
-            neighbor_ip = next(n['ip'] for n in neighbor_router['networks'] if n['name'] == shared_network)
-            neighbors.append(f'"{neighbor["id"]}":["{neighbor_ip}",{neighbor["cost"]}]')
         
+        for neighbor in router['neighbors']:
+            neighbor_router = next(r for r in config['routers'] if r['id'] == neighbor['id'])
+            neighbor_ip = neighbor_router['networks'][0]['ip']
+            neighbors.append(f'"{neighbor["id"]}":["{neighbor_ip}",{neighbor["cost"]}]')
+            
         routers.append({
             **router,
             'neighbors_str': ','.join(neighbors)
         })
-
+    
     # Carregar template
     env = Environment(loader=FileSystemLoader('.'))
     template = env.get_template('docker-compose.j2')
