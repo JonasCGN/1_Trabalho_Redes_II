@@ -57,6 +57,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
             ip3 = ipaddress.IPv4Address(rede3['gateway']) + 3
             nets.append({'name': rede3['name'], 'ip': str(ip3)})
 
+
         neighbors = []
         if num_roteadores > 1:
             neighbors.append({'id': f'roteador{((i - 1) % num_roteadores) + 1}', 'cost': 10})
@@ -68,7 +69,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
             'networks': nets,
             'neighbors': neighbors
         })
-
+    
     # Estrutura final
     dados = {
         'networks': redes,
@@ -82,4 +83,4 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
 
     print("Arquivo 'config.yaml' gerado com sucesso!")
 
-gerar_yaml(6, 2)
+gerar_yaml(10, 2)

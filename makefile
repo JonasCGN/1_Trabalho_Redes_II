@@ -6,3 +6,9 @@ all:
 
 clean:
 	docker compose down --rmi all --volumes --remove-orphans
+
+teste_ping:
+	@cd docker/roteador/script_teste && python teste_ping.py
+
+teste_rotas:
+	@cd docker/roteador/script_teste && python teste_rotas.py
