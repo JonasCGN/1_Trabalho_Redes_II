@@ -22,13 +22,13 @@ def atualizar_rota(tabela):
         print(f"[{ROTEADOR_ID}] Executando: {comando}")
         try:
             # Remover rota existente para evitar erros
-            subprocess.run(f"ip route del {destino} || true", shell=True)
+            # subprocess.run(f"ip route del {destino} || true", shell=True)
             result = subprocess.run(comando, shell=True, capture_output=True, text=True)  # Executa o comando no sistema operacional
             
             if result.returncode != 0:
                 print(f"[{ROTEADOR_ID}] Erro ao executar comando: {result.stderr.strip()}")
-                if "RTNETLINK answers: File exists" in result.stderr:
-                    subprocess.run(f"ip route replace {destino} via {prox_salto}", shell=True)
+                # if "RTNETLINK answers: File exists" in result.stderr:
+                #     subprocess.run(f"ip route replace {destino} via {prox_salto}", shell=True)
             else:
                 print(f"[{ROTEADOR_ID}] Comando executado com sucesso: {result.stdout.strip()}")
                 
@@ -124,7 +124,6 @@ def verificaVizinhos(lsdb):
         else:
             print(f"[{ROTEADOR_ID}] LSDB vazia.")
 
-    
 def iniciar_threads():
     lsdb = {}
     
