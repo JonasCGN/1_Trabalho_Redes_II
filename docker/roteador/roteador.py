@@ -56,6 +56,18 @@ def verifica_vizinhos_inativos():
         
     return inativos
 
+def verifica_vizinhos_ativos():
+    inativos = []
+    for roteador in list(VIZINHOS.keys()):
+        retorno = verifica_tcp(VIZINHOS[roteador][0])
+        if retorno:
+            inativos.append(roteador)
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} ativo.")
+        else:
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} inativo.")
+        
+    return inativos
+
 def verifica_roteadores_inativos(lsdb):
     inativos = []
     
@@ -68,15 +80,6 @@ def verifica_roteadores_inativos(lsdb):
             print(f"[{ROTEADOR_ID}] Roteador {roteador} ativo.")
         
     return inativos
-
-def remove_roteador_inativo(inativos):
-    for inativo in inativos:
-        destino = f"172.21.{int(inativo.split('r')[-1]) - 1}.0/24"
-        
-        try:
-            subprocess.run(f"ip route del {destino}", shell=True)
-        except Exception as e:
-            print(f"[{ROTEADOR_ID}] Erro ao remover rota para {inativo}: {e}")
 
 def rota_existe(destino):
     try:
@@ -167,26 +170,28 @@ def verificar_vizinhos_ativos(inativos, lsdb):
     time.sleep(30)  # Ajuste o tempo de espera entre verificações
     
     while True:
+        novos_ativos = verifica_vizinhos_ativos()
         novos_inativos = verifica_vizinhos_inativos()
         inativos.clear()  # Limpa a lista original, mantendo a referência
         inativos.extend(novos_inativos)  # Adiciona os novos valores
 
         # Remove vizinhos inativos do LSDB
         for inativo in novos_inativos:
-            if inativo in lsdb:
-                lsdb.pop(inativo)
             if inativo in VIZINHOS_ATIVOS:
                 del VIZINHOS_ATIVOS[inativo]  # Remove do dicionário de vizinhos ativos
                 
+        for ativo in novos_ativos:
+            if ativo not in VIZINHOS_ATIVOS:
+                VIZINHOS_ATIVOS[ativo] = VIZINHOS[ativo]
+                
         print(f"[{ROTEADOR_ID}] Vizinhos inativos: {inativos}")
         
-        if novos_inativos:
+        if novos_inativos or novos_ativos:
             print(f"[{ROTEADOR_ID}] Atualizando tabela de rotas...")
-            remove_roteador_inativo(novos_inativos)
+            
             tabela_atualizada = dijkstra(ROTEADOR_ID, lsdb, inativos)
             atualizar_rota(tabela_atualizada)
         
-        # Aumenta o intervalo de espera caso não haja mudanças
         time.sleep(10 if novos_inativos else 0.5)
 
 def iniciar_threads():
