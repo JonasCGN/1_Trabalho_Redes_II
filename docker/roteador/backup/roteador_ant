@@ -13,11 +13,57 @@ VIZINHOS = json.loads(os.getenv("VIZINHOS"))
 
 PORTA_LSA = 5000
 
+import socket
+
+def verifica_tcp(ip):
+    try:
+        resultado = subprocess.run(f"ping -c 1 -W 0.1 {ip}", shell=True, check=True, text=True, capture_output=True)
+        if resultado.returncode == 0:
+            return True
+        else:
+            return False
+    except:
+        return False
+
+def verifica_vizinhos_inativos():
+    inativos = []
+    for roteador in list(VIZINHOS.keys()):
+        if not verifica_tcp(VIZINHOS[roteador][0]):
+            inativos.append(roteador)
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} inativo.")
+        else:
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} ativo.")
+        
+    return inativos
+
+def verifica_roteadores_inativos(lsdb):
+    inativos = []
+    
+    for roteador, dados in lsdb.items():
+        if not verifica_tcp(dados["ip"]):
+            inativos.append(roteador)
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} inativo.")
+        else:
+            print(f"[{ROTEADOR_ID}] Roteador {roteador} ativo.")
+        
+    return inativos
+
+def remove_roteador_inativo(inativos):
+    for inativo in inativos:
+        destino = f"172.21.{int(inativo.split('r')[-1]) - 1}.0/24"
+        
+        try:
+            subprocess.run(f"ip route del {destino}", shell=True)
+        except Exception as e:
+            print(f"[{ROTEADOR_ID}] Erro ao remover rota para {inativo}: {e}")
+
 def atualizar_rota(tabela):
     for destino, prox_salto in tabela.items():
         
         destino = f"172.21.{int(destino.split('r')[-1]) - 1}.0/24"
+        
         prox_salto = f"172.21.{int(prox_salto.split('r')[-1]) - 1}.2"
+        
         comando = f"ip route add {destino} via {prox_salto}"
         print(f"[{ROTEADOR_ID}] Executando: {comando}")
         try:
@@ -27,19 +73,21 @@ def atualizar_rota(tabela):
             
             if result.returncode != 0:
                 print(f"[{ROTEADOR_ID}] Erro ao executar comando: {result.stderr.strip()}")
-                # if "RTNETLINK answers: File exists" in result.stderr:
-                #     subprocess.run(f"ip route replace {destino} via {prox_salto}", shell=True)
+                if "RTNETLINK answers: File exists" in result.stderr:
+                    subprocess.run(f"ip route replace {destino} via {prox_salto}", shell=True)
+                elif "Network is unreachable" in result.stderr:
+                    print(f"[{ROTEADOR_ID}] Rede inatingível para {destino}. Verifique a conectividade.")
             else:
                 print(f"[{ROTEADOR_ID}] Comando executado com sucesso: {result.stdout.strip()}")
                 
         except Exception as e:
             print(f"[{ROTEADOR_ID}] Erro ao adicionar rota: {e}")
             
-def atualizar_tabela(lsdb):
+def atualizar_tabela(lsdb, inativos):
     while True:
         tabela = {}
         if lsdb:
-            tabela = dijkstra(ROTEADOR_ID, lsdb)
+            tabela = dijkstra(ROTEADOR_ID, lsdb,inativos)
         
         if tabela:
             print(f"[{ROTEADOR_ID}] Nova tabela de rotas:")
@@ -51,7 +99,7 @@ def atualizar_tabela(lsdb):
             print(f"[{ROTEADOR_ID}] Nenhuma rota encontrada.")
             
         time.sleep(5)
-
+            
 def enviar_lsa():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     seq = 0
@@ -71,8 +119,8 @@ def enviar_lsa():
         for viz, (ip, _) in VIZINHOS.items():
             sock.sendto(mensagem, (ip, PORTA_LSA))
         
-        time.sleep(5)
-
+        time.sleep(5)  # Intervalo de envio de LSAs (5 segundos)
+        
 def receber_lsa(lsdb):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("0.0.0.0", PORTA_LSA))
@@ -89,50 +137,39 @@ def receber_lsa(lsdb):
                     sock.sendto(dados, (ip, PORTA_LSA))
                     print(f"[{ROTEADOR_ID}] Encaminhando LSA para {viz} ({ip})")
 
-def verificaVizinhos(lsdb):
+def verificar_vizinhos_ativos(inativos, lsdb):
+    time.sleep(30)
+    
     while True:
-        time.sleep(10)
+        novos_inativos = verifica_roteadores_inativos(lsdb)
         
-        if lsdb:
-            inativos = []
-            for roteador in list(lsdb.keys()):
-                try:
-                    ip = lsdb[roteador]["ip"]
-                    resultado = subprocess.run(f"ping -c 1 -W 0.1 {ip}", shell=True, check=True, text=True, capture_output=True)
-                    if resultado.returncode == 0:
-                        print(f"[{ROTEADOR_ID}] Roteador {roteador} está acessível.")
-                    else:
-                        inativos.append(roteador)
-                except:
-                    inativos.append(roteador)
+        inativos.clear()            # Limpa a lista original (mantendo a referência)
+        inativos.extend(novos_inativos)  # Adiciona os novos valores
 
-            for roteador in inativos:
-                print(f"[{ROTEADOR_ID}] Removendo {roteador} da LSDB.")
-                lsdb.pop(roteador, None)
-                
-                roteador_id = roteador.split("r")[-1]
-                
-                destino = f"172.21.{int(roteador_id) - 1}.0/24"
-                comando = f"ip route del {destino}"
-                
-                try:
-                    print(f"[{ROTEADOR_ID}] Executando: {comando}")
-                    subprocess.run(comando, shell=True, check=True)
-                except subprocess.CalledProcessError as e:
-                    print(f"[{ROTEADOR_ID}] Erro ao remover rota: {e}")
-
+        print(f"[{ROTEADOR_ID}] Vizinhos inativos: {inativos}")
+        
+        if novos_inativos:
+            print(f"[{ROTEADOR_ID}] Atualizando tabela de rotas...")
+            atualizar_rota(dijkstra(ROTEADOR_ID, lsdb, novos_inativos))
+            remove_roteador_inativo(novos_inativos)
+        
+        if not novos_inativos:
+            time.sleep(0.5)
         else:
-            print(f"[{ROTEADOR_ID}] LSDB vazia.")
+            time.sleep(10)
 
 def iniciar_threads():
     lsdb = {}
+    inativos = []
     
     t1 = threading.Thread(target=enviar_lsa)
     t2 = threading.Thread(target=receber_lsa, args=(lsdb,))
-    t3 = threading.Thread(target=atualizar_tabela, args=(lsdb,))
-    t4 = threading.Thread(target=verificaVizinhos, args=(lsdb,))
+    t3 = threading.Thread(target=atualizar_tabela, args=(lsdb,inativos,))
+    t4 = threading.Thread(target=verificar_vizinhos_ativos, args=(inativos,lsdb,))
     
-    for t in [t1, t2, t3, t4]:
+    for t in [t1, t2, t3,t4]:
+    
+    # for t in [t1, t2, t3]:
         t.daemon = True
         t.start()
 

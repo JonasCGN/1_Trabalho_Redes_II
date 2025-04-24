@@ -1,4 +1,5 @@
 from collections import deque
+import heapq
 
 def verifica_vizinhos(origem, lsdb, inativos=[]):
     # Filtra LSDB removendo roteadores inativos e seus vizinhos
@@ -52,65 +53,91 @@ def verifica_vizinhos(origem, lsdb, inativos=[]):
     return vizinhos_acessiveis
 
 def dijkstra(origem, lsdb, inativos=[]):
-    # 1. Construir grafo ignorando roteadores inativos e seus vizinhos
+    # Filtra roteadores inativos do LSDB
     grafo = {}
-    for router_id, lsa in lsdb.items():
+    for router_id, dados in lsdb.items():
         if router_id in inativos:
             continue
-        vizinhos_filtrados = {
+        vizinhos = {
             viz: info['custo']
-            for viz, info in lsa['vizinhos'].items()
+            for viz, info in dados['vizinhos'].items()
             if viz not in inativos
         }
-        grafo[router_id] = vizinhos_filtrados
+        grafo[router_id] = vizinhos
 
-    # 2. Inicializar estruturas
-    distancias = {router: float('inf') for router in grafo}
-    distancias[origem] = 0
-    anteriores = {router: None for router in grafo}
-    visitados = set()
+    if origem not in grafo:
+        print(f"[dijkstra] Origem {origem} não está no grafo.")
+        return {}
 
-    while len(visitados) < len(grafo):
-        atual = min((router for router in grafo if router not in visitados), key=lambda r: distancias[r])
-        for vizinho, custo in grafo[atual].items():
-            if vizinho not in visitados:
-                if distancias[atual] == float('inf'):
-                    nova_distancia = custo
-                else:
-                    nova_distancia = distancias[atual] + custo
-                    
-                if vizinho in distancias.keys() and nova_distancia < distancias[vizinho]:
-                    distancias[vizinho] = nova_distancia
-                    anteriores[vizinho] = atual
-        
-        visitados.add(atual)
+    dist = {router: float('inf') for router in grafo}
+    prev = {router: None for router in grafo}
+    dist[origem] = 0
 
-    # 4. Construir tabela de rotas (descobrir próximo salto)
+    heap = [(0, origem)]
+
+    while heap:
+        custo_atual, atual = heapq.heappop(heap)
+
+        if custo_atual > dist[atual]:
+            continue
+
+        for vizinho, peso in grafo[atual].items():
+            nova_dist = dist[atual] + peso
+            if vizinho in dist.keys() and nova_dist < dist[vizinho]:
+                dist[vizinho] = nova_dist
+                prev[vizinho] = atual
+                heapq.heappush(heap, (nova_dist, vizinho))
+
+    # Calcula o próximo salto para cada destino
     tabela_rotas = {}
     for destino in grafo:
-        if destino == origem:
+        if destino == origem or dist[destino] == float('inf'):
             continue
         atual = destino
-        anterior = anteriores[atual]
-        if anterior is None:
-            continue
-        while anteriores[anterior] is not None and anteriores[anterior] != origem:
-            anterior = anteriores[anterior]
-        if anteriores[anterior] == origem:
-            tabela_rotas[destino] = anterior
-        else:
-            tabela_rotas[destino] = anterior if anterior != destino else atual
+        while prev[atual] != origem:
+            atual = prev[atual]
+            if atual is None:
+                break
+        if atual:
+            tabela_rotas[destino] = atual
+            
+    tabela_rotas = {destino: prox for destino, prox in tabela_rotas.items() if prox != destino}
 
-    tabela_rotas = {destino: prox for destino, prox in tabela_rotas.items() if prox != origem}
-
-    # 5. Mostrar tabela
-    print("\nTabela de Roteamento:")
-    for destino, prox in tabela_rotas.items():
-        print(f"Destino: {destino}, Próximo Salto: {prox}")
-
-    
     return tabela_rotas
 
+def calcular_caminho(tabela_de_rotas, origem, destino, caminho_atual=None):
+    if caminho_atual is None:
+        caminho_atual = [origem]
+    
+    # Se a origem for igual ao destino, retornamos o caminho encontrado
+    if origem == destino:
+        return caminho_atual
+
+    # Caso contrário, verificamos os próximos saltos
+    if origem not in tabela_de_rotas or destino not in tabela_de_rotas[origem]:
+        return None  # Se não houver um próximo salto, o caminho não é válido
+    
+    # Recursivamente adicionamos o próximo salto ao caminho
+    proximo_salto = tabela_de_rotas[origem][destino]
+    novo_caminho = caminho_atual + [proximo_salto]
+    
+    # Recorremos para o próximo salto até o destino
+    return calcular_caminho(tabela_de_rotas, proximo_salto, destino, novo_caminho)
+
+def exibir_caminhos(tabela_de_rotas):
+    for origem in tabela_de_rotas:
+        print(f"✅ Roteador: {origem}")
+        for destino in tabela_de_rotas[origem]:
+            caminho = calcular_caminho(tabela_de_rotas, origem, destino)
+            if caminho:
+                caminho_completo = " ➜ ".join(caminho)
+                print(f"Destino: {destino}\tPróximo Salto: {tabela_de_rotas[origem][destino]}\tCaminho Completo: {caminho_completo}")
+            else:
+                print(f"Destino: {destino}\tPróximo Salto: {tabela_de_rotas[origem][destino]}\tCaminho Completo: Caminho inválido")
+        print()
+
+# Exemplo de uso:
+# Supondo que sua lista de tabelas seja como a que você mostrou
 if __name__ == "__main__":
     
     # Exemplo de uso
@@ -188,8 +215,18 @@ if __name__ == "__main__":
             'seq': 8
         }
     }
-    inativos = []
+
+    # Lista de roteadores inativos para teste
+    inativos = ['roteador4']
+
     print("Vizinhos acessíveis:", verifica_vizinhos("roteador1", lsdb, inativos))
-    print(f"Roteador {inativos} inativo, recalculando rotas.")
-    print(dijkstra("roteador1", lsdb,inativos))
-    # dijkstra("roteador1", lsdb)
+    
+    lista_caminhos = {}
+    
+    # Atualiza as rotas levando em consideração os inativos
+    for roteador in lsdb.keys():
+        # print(roteador)
+        lista_caminhos[roteador] = dijkstra(roteador, lsdb, inativos)
+        
+    # print(lista_caminhos)
+    # exibir_caminhos(lista_caminhos)
