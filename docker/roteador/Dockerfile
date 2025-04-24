@@ -6,6 +6,7 @@ WORKDIR /app
 # Copiar os arquivos do roteador para dentro do container
 COPY roteador.py /app/roteador.py
 COPY dijkstra.py /app/dijkstra.py
+COPY script_teste/roteador.py /app/script_teste/roteador.py
 COPY requirements.txt /app/
 
 # Instalar dependências

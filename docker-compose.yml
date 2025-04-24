@@ -20,7 +20,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador1
       - ENDERECO_IP=172.21.0.2
-      - VIZINHOS={ "roteador10":["172.21.9.2",10],"roteador2":["172.21.1.2",10] }
+      - VIZINHOS={ "roteador8":["172.21.7.2",10],"roteador2":["172.21.1.2",10] }
     networks:
 
       rede1:
@@ -29,8 +29,8 @@ services:
       rede2:
         ipv4_address: 172.21.1.3
 
-      rede10:
-        ipv4_address: 172.21.9.4
+      rede8:
+        ipv4_address: 172.21.7.4
 
 
   roteador2:
@@ -153,55 +153,17 @@ services:
     environment:
       - ROTEADOR_ID=roteador8
       - ENDERECO_IP=172.21.7.2
-      - VIZINHOS={ "roteador7":["172.21.6.2",10],"roteador9":["172.21.8.2",10] }
+      - VIZINHOS={ "roteador7":["172.21.6.2",10],"roteador1":["172.21.0.2",10] }
     networks:
 
       rede8:
         ipv4_address: 172.21.7.2
 
-      rede9:
-        ipv4_address: 172.21.8.3
-
-      rede7:
-        ipv4_address: 172.21.6.4
-
-
-  roteador9:
-    <<: *router_base
-    container_name: roteador9
-    environment:
-      - ROTEADOR_ID=roteador9
-      - ENDERECO_IP=172.21.8.2
-      - VIZINHOS={ "roteador8":["172.21.7.2",10],"roteador10":["172.21.9.2",10] }
-    networks:
-
-      rede9:
-        ipv4_address: 172.21.8.2
-
-      rede10:
-        ipv4_address: 172.21.9.3
-
-      rede8:
-        ipv4_address: 172.21.7.4
-
-
-  roteador10:
-    <<: *router_base
-    container_name: roteador10
-    environment:
-      - ROTEADOR_ID=roteador10
-      - ENDERECO_IP=172.21.9.2
-      - VIZINHOS={ "roteador9":["172.21.8.2",10],"roteador1":["172.21.0.2",10] }
-    networks:
-
-      rede10:
-        ipv4_address: 172.21.9.2
-
       rede1:
         ipv4_address: 172.21.0.3
 
-      rede9:
-        ipv4_address: 172.21.8.4
+      rede7:
+        ipv4_address: 172.21.6.4
 
 
 
@@ -213,26 +175,12 @@ services:
       rede1:
         ipv4_address: 172.21.0.10
 
-  h1b:
-    <<: *host_base
-    container_name: h1b
-    networks:
-      rede1:
-        ipv4_address: 172.21.0.11
-
   h2a:
     <<: *host_base
     container_name: h2a
     networks:
       rede2:
         ipv4_address: 172.21.1.10
-
-  h2b:
-    <<: *host_base
-    container_name: h2b
-    networks:
-      rede2:
-        ipv4_address: 172.21.1.11
 
   h3a:
     <<: *host_base
@@ -241,26 +189,12 @@ services:
       rede3:
         ipv4_address: 172.21.2.10
 
-  h3b:
-    <<: *host_base
-    container_name: h3b
-    networks:
-      rede3:
-        ipv4_address: 172.21.2.11
-
   h4a:
     <<: *host_base
     container_name: h4a
     networks:
       rede4:
         ipv4_address: 172.21.3.10
-
-  h4b:
-    <<: *host_base
-    container_name: h4b
-    networks:
-      rede4:
-        ipv4_address: 172.21.3.11
 
   h5a:
     <<: *host_base
@@ -269,26 +203,12 @@ services:
       rede5:
         ipv4_address: 172.21.4.10
 
-  h5b:
-    <<: *host_base
-    container_name: h5b
-    networks:
-      rede5:
-        ipv4_address: 172.21.4.11
-
   h6a:
     <<: *host_base
     container_name: h6a
     networks:
       rede6:
         ipv4_address: 172.21.5.10
-
-  h6b:
-    <<: *host_base
-    container_name: h6b
-    networks:
-      rede6:
-        ipv4_address: 172.21.5.11
 
   h7a:
     <<: *host_base
@@ -297,54 +217,12 @@ services:
       rede7:
         ipv4_address: 172.21.6.10
 
-  h7b:
-    <<: *host_base
-    container_name: h7b
-    networks:
-      rede7:
-        ipv4_address: 172.21.6.11
-
   h8a:
     <<: *host_base
     container_name: h8a
     networks:
       rede8:
         ipv4_address: 172.21.7.10
-
-  h8b:
-    <<: *host_base
-    container_name: h8b
-    networks:
-      rede8:
-        ipv4_address: 172.21.7.11
-
-  h9a:
-    <<: *host_base
-    container_name: h9a
-    networks:
-      rede9:
-        ipv4_address: 172.21.8.10
-
-  h9b:
-    <<: *host_base
-    container_name: h9b
-    networks:
-      rede9:
-        ipv4_address: 172.21.8.11
-
-  h10a:
-    <<: *host_base
-    container_name: h10a
-    networks:
-      rede10:
-        ipv4_address: 172.21.9.10
-
-  h10b:
-    <<: *host_base
-    container_name: h10b
-    networks:
-      rede10:
-        ipv4_address: 172.21.9.11
 
 
 networks:
@@ -404,17 +282,3 @@ networks:
       config:
         - subnet: 172.21.7.0/24
           gateway: 172.21.7.1
-
-  rede9:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.21.8.0/24
-          gateway: 172.21.8.1
-
-  rede10:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.21.9.0/24
-          gateway: 172.21.9.1

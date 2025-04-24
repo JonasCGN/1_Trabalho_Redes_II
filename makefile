@@ -4,6 +4,10 @@ all:
 	@docker-compose up --build
 	# @docker-compose up -d --build --remove-orphans
 
+down:
+	@docker-compose down 
+	
+
 clean:
 	docker compose down --rmi all --volumes --remove-orphans
 
@@ -12,3 +16,6 @@ teste_ping:
 
 teste_rotas:
 	@cd docker/roteador/script_teste && python teste_rotas.py
+
+teste_vias:
+	@cd docker/roteador/script_teste && python teste_vias.py

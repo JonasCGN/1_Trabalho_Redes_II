@@ -15,6 +15,7 @@ PORTA_LSA = 5000
 
 def atualizar_rota(tabela):
     for destino, prox_salto in tabela.items():
+        
         destino = f"172.21.{int(destino.split('r')[-1]) - 1}.0/24"
         prox_salto = f"172.21.{int(prox_salto.split('r')[-1]) - 1}.2"
         comando = f"ip route add {destino} via {prox_salto}"
@@ -28,29 +29,17 @@ def atualizar_rota(tabela):
                 print(f"[{ROTEADOR_ID}] Erro ao executar comando: {result.stderr.strip()}")
                 if "RTNETLINK answers: File exists" in result.stderr:
                     subprocess.run(f"ip route replace {destino} via {prox_salto}", shell=True)
-                elif "Error: Nexthop has invalid gateway." in result.stderr:
-                    # Tenta encontrar outro próximo salto disponível
-                    for outro_prox_salto in tabela.values():
-                        if outro_prox_salto != prox_salto:
-                            novo_prox_salto = f"172.21.{int(outro_prox_salto.split('r')[-1]) - 1}.2"
-                            comando = f"ip route add {destino} via {novo_prox_salto}"
-                            print(f"[{ROTEADOR_ID}] Tentando rota alternativa: {comando}")
-                            subprocess.run(f"ip route del {destino} || true", shell=True)
-                            subprocess.run(comando, shell=True)
-                            break
-                    else:
-                        print(f"[{ROTEADOR_ID}] Nenhuma rota alternativa disponível para {destino}")
             else:
                 print(f"[{ROTEADOR_ID}] Comando executado com sucesso: {result.stdout.strip()}")
                 
         except Exception as e:
             print(f"[{ROTEADOR_ID}] Erro ao adicionar rota: {e}")
             
-def atualizar_tabela(lsdb,inativos):
+def atualizar_tabela(lsdb):
     while True:
         tabela = {}
         if lsdb:
-            tabela = dijkstra(ROTEADOR_ID, lsdb,inativos=inativos)
+            tabela = dijkstra(ROTEADOR_ID, lsdb)
         
         if tabela:
             print(f"[{ROTEADOR_ID}] Nova tabela de rotas:")
@@ -100,31 +89,24 @@ def receber_lsa(lsdb):
                     sock.sendto(dados, (ip, PORTA_LSA))
                     print(f"[{ROTEADOR_ID}] Encaminhando LSA para {viz} ({ip})")
 
-def verificaVizinhos(inativos):
+def verificaVizinhos(lsdb):
     while True:
-        time.sleep(5)
-        
-        inativo = []
-        if VIZINHOS:
-            for roteador in list(VIZINHOS.keys()):
+        if lsdb:
+            inativos = []
+            for roteador in list(lsdb.keys()):
                 try:
-                    ip = VIZINHOS[roteador][0]
+                    ip = lsdb[roteador]["ip"]
                     resultado = subprocess.run(f"ping -c 1 -W 0.1 {ip}", shell=True, check=True, text=True, capture_output=True)
                     if resultado.returncode == 0:
                         print(f"[{ROTEADOR_ID}] Roteador {roteador} está acessível.")
                     else:
-                        inativo.append(roteador) if roteador not in inativo else None
-                        print(f"[{ROTEADOR_ID}] Roteador {roteador} não está acessível.")
+                        inativos.append(roteador)
                 except:
-                    inativo.append(roteador) if roteador not in inativo else None
-                    print(f"[{ROTEADOR_ID}] Roteador {roteador} não está acessível.")
+                    inativos.append(roteador)
 
-            inativos = inativo.copy()
-            print(f"[{ROTEADOR_ID}] Vizinhos inativos: {inativos}")
-            
-            for roteador in inativo:
+            for roteador in inativos:
                 print(f"[{ROTEADOR_ID}] Removendo {roteador} da LSDB.")
-                # lsdb.pop(roteador, None)
+                lsdb.pop(roteador, None)
                 
                 roteador_id = roteador.split("r")[-1]
                 
@@ -136,17 +118,19 @@ def verificaVizinhos(inativos):
                     subprocess.run(comando, shell=True, check=True)
                 except subprocess.CalledProcessError as e:
                     print(f"[{ROTEADOR_ID}] Erro ao remover rota: {e}")
+
         else:
             print(f"[{ROTEADOR_ID}] LSDB vazia.")
 
+        time.sleep(5)
+    
 def iniciar_threads():
     lsdb = {}
-    inativos = []
     
     t1 = threading.Thread(target=enviar_lsa)
     t2 = threading.Thread(target=receber_lsa, args=(lsdb,))
-    t3 = threading.Thread(target=atualizar_tabela, args=(lsdb,inativos,))
-    t4 = threading.Thread(target=verificaVizinhos, args=(inativos,))
+    t3 = threading.Thread(target=atualizar_tabela, args=(lsdb,))
+    t4 = threading.Thread(target=verificaVizinhos, args=(lsdb,))
     
     for t in [t1, t2, t3, t4]:
         t.daemon = True
