@@ -11,6 +11,8 @@ def teste_de_vias():
             result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
             if result.returncode == 0:
                 print(Roteador.formatar_mensagem(r_origem,(255,255,0)),':',Roteador.formatar_sucesso(result.stdout))
+                print("Quantidade de linhas:",len(Roteador.extrair_linhas(result.stdout)))
+                
         except subprocess.CalledProcessError as e:
             print(Roteador.formatar_erro(f"{r_origem} falhou."))
 

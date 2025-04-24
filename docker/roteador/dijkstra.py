@@ -52,9 +52,6 @@ def verifica_vizinhos(origem, lsdb, inativos=[]):
     return vizinhos_acessiveis
 
 def dijkstra(origem, lsdb, inativos=[]):
-    
-    print(f'[{origem}]Roteadores inativos: {inativos}')
-    
     # 1. Construir grafo ignorando roteadores inativos e seus vizinhos
     grafo = {}
     for router_id, lsa in lsdb.items():
@@ -191,7 +188,7 @@ if __name__ == "__main__":
             'seq': 8
         }
     }
-    inativos = ['roteador8']
+    inativos = []
     print("Vizinhos acessíveis:", verifica_vizinhos("roteador1", lsdb, inativos))
     print(f"Roteador {inativos} inativo, recalculando rotas.")
     print(dijkstra("roteador1", lsdb,inativos))

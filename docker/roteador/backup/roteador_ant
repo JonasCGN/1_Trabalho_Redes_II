@@ -91,6 +91,8 @@ def receber_lsa(lsdb):
 
 def verificaVizinhos(lsdb):
     while True:
+        time.sleep(10)
+        
         if lsdb:
             inativos = []
             for roteador in list(lsdb.keys()):
@@ -122,7 +124,6 @@ def verificaVizinhos(lsdb):
         else:
             print(f"[{ROTEADOR_ID}] LSDB vazia.")
 
-        time.sleep(5)
     
 def iniciar_threads():
     lsdb = {}

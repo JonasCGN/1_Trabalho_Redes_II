@@ -29,9 +29,15 @@ class Roteador:
     def extrair_ip_roteadores(roteador_name):
         return int(roteador_name.split('roteador')[-1]) - 1
     
+    
+    @staticmethod
+    def extrair_linhas(resultado):
+        linhas = resultado.split('\n')
+        return linhas
+    
     @staticmethod
     def traduzir_caminho(roteador,caminho):
-        hops = caminho.split('\n')[1:]
+        hops = Roteador.extrair_linhas(caminho)
         traducao = []
         traducao.append(roteador)
         for hop in hops:
