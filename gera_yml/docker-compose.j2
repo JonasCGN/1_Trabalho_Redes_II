@@ -8,6 +8,8 @@ x-router-base: &router_base
     dockerfile: Dockerfile
 
 x-host-base: &host_base
+  cap_add:
+    - NET_ADMIN
   build:
     context: ./docker/host
     dockerfile: Dockerfile
@@ -32,6 +34,8 @@ services:
   {{ host.name }}:
     <<: *host_base
     container_name: {{ host.name }}
+    environment:
+      - ROTEADOR_CONECTADO= {{ host.router }}
     networks:
       {{ host.network }}:
         ipv4_address: {{ host.ip }}

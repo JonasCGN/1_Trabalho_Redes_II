@@ -3,8 +3,8 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY host.py /app/host.py
-COPY script_teste/host.py /app/script_teste/host.py
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Atualizar e instalar pacotes necessários
 RUN apt-get update && apt-get install -y \
@@ -14,4 +14,4 @@ RUN apt-get update && apt-get install -y \
     traceroute  
 
 # Comando padrão (simples)
-CMD ["python" ,"host.py"]
+CMD ["/app/start.sh"]

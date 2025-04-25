@@ -214,3 +214,13 @@ def iniciar_threads():
 if __name__ == "__main__":
     print(f"[{ROTEADOR_ID}] Iniciado com vizinhos: {VIZINHOS}")
     iniciar_threads()
+    # while True:
+    #     try:
+    #         # Verifica se o roteador está ativo
+    #         if verifica_tcp(ENDERECO_IP):
+    #             print(f"[{ROTEADOR_ID}] Roteador ativo.")
+    #         else:
+    #             print(f"[{ROTEADOR_ID}] Roteador inativo. Aguardando...")
+    #             time.sleep(5)
+    #     except Exception as e:
+    #         print(f"[{ROTEADOR_ID}] Erro: {e}")
