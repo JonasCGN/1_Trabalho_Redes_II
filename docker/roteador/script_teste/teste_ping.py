@@ -2,6 +2,8 @@ import subprocess
 from roteador import Roteador
 
 def teste_de_ping_roteadores():
+    falha = []
+    
     roteadores = Roteador.roteadores_encontrados()
     for r_origem in roteadores:
         print(f"Testando {r_origem}...")
@@ -13,7 +15,14 @@ def teste_de_ping_roteadores():
                     print(Roteador.formatar_sucesso(f"{r_origem} -> {r_destino}  sucesso."))
             except subprocess.CalledProcessError as e:
                 print(Roteador.formatar_erro(f"{r_origem} -> {r_destino}  falhou."))
+                falha.append([r_origem, r_destino])
             
+        print('\n')
+        
+    if falha:
+        print("Roteadores com falha:")
+        for roteador, destino in falha:
+            print(Roteador.formatar_erro(f"{roteador} -> {destino}  falhou."))
         print('\n')
 
 if __name__ == "__main__":

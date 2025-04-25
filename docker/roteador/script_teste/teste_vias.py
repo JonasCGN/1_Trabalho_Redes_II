@@ -15,7 +15,7 @@ def teste_de_vias():
                 
         except subprocess.CalledProcessError as e:
             print(Roteador.formatar_erro(f"{r_origem} falhou."))
-
+            
 def teste_de_vias_table():
     roteadores = Roteador.roteadores_encontrados()
     print(roteadores)
