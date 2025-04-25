@@ -9,4 +9,4 @@ print(f"[{meu_nome}] Iniciado com IP {meu_ip}.")
 if __name__ == "__main__":
     print(f"[{meu_nome}] Iniciando o host...")
     while True:
-        pass
+        time.sleep(1)
