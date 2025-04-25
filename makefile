@@ -22,3 +22,7 @@ teste_rotas:
 teste_vias:
 	@cls
 	@cd docker/roteador/script_teste && python teste_vias.py
+
+teste_ping_host:
+	@cls
+	@cd docker/host/script_teste && python teste_ping.py

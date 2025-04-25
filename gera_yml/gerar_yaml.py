@@ -30,7 +30,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
         for j in range(hosts_por_rede):
             ip_host = subnet.network_address + 10 + j
             hosts.append({
-                'name': f'h{i+1}{chr(97+j)}',  # h1a, h1b, etc
+                'name': f'host{i+1}{chr(97+j)}',  # h1a, h1b, etc
                 'network': rede_nome,
                 'ip': str(ip_host)
             })

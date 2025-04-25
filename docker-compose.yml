@@ -168,58 +168,58 @@ services:
 
 
 
-  h1a:
+  host1a:
     <<: *host_base
-    container_name: h1a
+    container_name: host1a
     networks:
       rede1:
         ipv4_address: 172.21.0.10
 
-  h2a:
+  host2a:
     <<: *host_base
-    container_name: h2a
+    container_name: host2a
     networks:
       rede2:
         ipv4_address: 172.21.1.10
 
-  h3a:
+  host3a:
     <<: *host_base
-    container_name: h3a
+    container_name: host3a
     networks:
       rede3:
         ipv4_address: 172.21.2.10
 
-  h4a:
+  host4a:
     <<: *host_base
-    container_name: h4a
+    container_name: host4a
     networks:
       rede4:
         ipv4_address: 172.21.3.10
 
-  h5a:
+  host5a:
     <<: *host_base
-    container_name: h5a
+    container_name: host5a
     networks:
       rede5:
         ipv4_address: 172.21.4.10
 
-  h6a:
+  host6a:
     <<: *host_base
-    container_name: h6a
+    container_name: host6a
     networks:
       rede6:
         ipv4_address: 172.21.5.10
 
-  h7a:
+  host7a:
     <<: *host_base
-    container_name: h7a
+    container_name: host7a
     networks:
       rede7:
         ipv4_address: 172.21.6.10
 
-  h8a:
+  host8a:
     <<: *host_base
-    container_name: h8a
+    container_name: host8a
     networks:
       rede8:
         ipv4_address: 172.21.7.10
