@@ -7,7 +7,7 @@ def teste_de_ping_roteadores():
         print(f"Testando {r_origem}...")
         for r_destino in roteadores:
             try:
-                comando = f"docker exec {r_origem} ping -c 1 -W 0.1 172.21.{Roteador.extrair_ip_roteadores(r_destino)}.1"
+                comando = f"docker exec {r_origem} ping -c 1 -W 0.1 172.21.{Roteador.extrair_ip_roteadores(r_destino)}.2"
                 result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
                 if result.returncode == 0:
                     print(Roteador.formatar_sucesso(f"{r_origem} -> {r_destino}  sucesso."))

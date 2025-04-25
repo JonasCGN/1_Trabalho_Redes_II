@@ -55,3 +55,7 @@ class Host:
         result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
         hosts = [h.strip("'") for h in result.stdout.split('\n') if h]
         return hosts
+    
+    @staticmethod
+    def extrair_ip_hosts(host_name):
+        return int(''.join(filter(str.isdigit, host_name.split('host')[-1]))) - 1
