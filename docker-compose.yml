@@ -179,6 +179,15 @@ services:
       rede1:
         ipv4_address: 172.21.0.10
 
+  host1b:
+    <<: *host_base
+    container_name: host1b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.0.2
+    networks:
+      rede1:
+        ipv4_address: 172.21.0.11
+
   host2a:
     <<: *host_base
     container_name: host2a
@@ -187,6 +196,15 @@ services:
     networks:
       rede2:
         ipv4_address: 172.21.1.10
+
+  host2b:
+    <<: *host_base
+    container_name: host2b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.1.2
+    networks:
+      rede2:
+        ipv4_address: 172.21.1.11
 
   host3a:
     <<: *host_base
@@ -197,6 +215,15 @@ services:
       rede3:
         ipv4_address: 172.21.2.10
 
+  host3b:
+    <<: *host_base
+    container_name: host3b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.2.2
+    networks:
+      rede3:
+        ipv4_address: 172.21.2.11
+
   host4a:
     <<: *host_base
     container_name: host4a
@@ -205,6 +232,15 @@ services:
     networks:
       rede4:
         ipv4_address: 172.21.3.10
+
+  host4b:
+    <<: *host_base
+    container_name: host4b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.3.2
+    networks:
+      rede4:
+        ipv4_address: 172.21.3.11
 
   host5a:
     <<: *host_base
@@ -215,6 +251,15 @@ services:
       rede5:
         ipv4_address: 172.21.4.10
 
+  host5b:
+    <<: *host_base
+    container_name: host5b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.4.2
+    networks:
+      rede5:
+        ipv4_address: 172.21.4.11
+
   host6a:
     <<: *host_base
     container_name: host6a
@@ -223,6 +268,15 @@ services:
     networks:
       rede6:
         ipv4_address: 172.21.5.10
+
+  host6b:
+    <<: *host_base
+    container_name: host6b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.5.2
+    networks:
+      rede6:
+        ipv4_address: 172.21.5.11
 
   host7a:
     <<: *host_base
@@ -233,6 +287,15 @@ services:
       rede7:
         ipv4_address: 172.21.6.10
 
+  host7b:
+    <<: *host_base
+    container_name: host7b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.6.2
+    networks:
+      rede7:
+        ipv4_address: 172.21.6.11
+
   host8a:
     <<: *host_base
     container_name: host8a
@@ -241,6 +304,15 @@ services:
     networks:
       rede8:
         ipv4_address: 172.21.7.10
+
+  host8b:
+    <<: *host_base
+    container_name: host8b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.7.2
+    networks:
+      rede8:
+        ipv4_address: 172.21.7.11
 
 
 networks:

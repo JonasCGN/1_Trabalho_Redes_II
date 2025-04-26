@@ -2,8 +2,8 @@ import yaml
 import ipaddress
 
 def gerar_yaml(num_roteadores, hosts_por_rede):
-    if num_roteadores < 3 or num_roteadores > 10:
-        raise ValueError("Número de roteadores deve ser entre 3 e 10.")
+    if num_roteadores < 3:
+        raise ValueError("Número de roteadores deve ser entre 3.")
     if hosts_por_rede < 1 or hosts_por_rede > 254:
         raise ValueError("Número de hosts por rede deve ser entre 1 e 254.")
     
@@ -87,4 +87,4 @@ def gerar_yaml(num_roteadores, hosts_por_rede):
 
     print("Arquivo 'config.yaml' gerado com sucesso!")
 
-gerar_yaml(8, 1)
+gerar_yaml(8, 2)

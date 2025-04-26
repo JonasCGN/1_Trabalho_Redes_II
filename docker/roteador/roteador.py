@@ -68,19 +68,17 @@ def verifica_vizinhos_ativos():
         
     return inativos
 
-def verifica_roteadores_inativos(lsdb):
-    inativos = []
-    
-    for roteador, dados in lsdb.items():
+def verifica_roteadores_ativos(lsdb):
+    for roteador, dados in list(lsdb.items()):  # Create a copy of the dictionary for safe iteration
         retorno = verifica_tcp(dados["ip"])
         if not retorno:
-            inativos.append(roteador)
             print(f"[{ROTEADOR_ID}] Roteador {roteador} inativo.")
+            return False
         else:
             print(f"[{ROTEADOR_ID}] Roteador {roteador} ativo.")
-        
-    return inativos
-
+            
+    return True
+    
 def rota_existe(destino):
     try:
         result = subprocess.run(f"ip route show {destino}", shell=True, capture_output=True, text=True)
@@ -114,7 +112,15 @@ def atualizar_rota(tabela):
 
 def atualizar_tabela(lsdb, inativos):
     while True:
+        # # Verifica se os roteadores estão ativos antes de atualizar a tabela
+        # # e caso se houver roteadores inativos, atualiza a tabela de rotas,
+        # # mas fica um processo lento, pois tem que verificar todos os roteadores,
+        # # e fica verificando a cada 5 segundos.
+        # if verifica_roteadores_ativos(lsdb):
+        #     continue
+        
         tabela = {}
+        
         if lsdb:
             tabela = dijkstra(ROTEADOR_ID, lsdb, inativos)
         

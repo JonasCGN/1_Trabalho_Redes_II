@@ -8,7 +8,7 @@ def teste_de_ping_hosts():
         print(f"Testando {host}...")
         for r_destino in hosts:
             try:
-                comando = f"docker exec {host} ping -c 1 -W 0.1 172.21.{Host.extrair_ip_hosts(r_destino)}.10"
+                comando = f"docker exec {host} ping -c 1 -W 0.1 172.21.{Host.extrair_ip_hosts(r_destino)}"
                 result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
                 if result.returncode == 0:
                     print(Host.formatar_sucesso(f"{host} -> {r_destino}  sucesso."))
@@ -31,7 +31,7 @@ def teste_de_ping_roteadores():
         print(f"Testando {host}...")
         for r_destino in roteadores:
             try:
-                comando = f"docker exec {host} ping -c 1 -W 0.1 172.21.{Host.extrair_ip_roteadores(r_destino)}.2"
+                comando = f"docker exec {host} ping -c 1 172.21.{Host.extrair_ip_roteadores(r_destino)}.2"
                 result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
                 if result.returncode == 0:
                     print(Host.formatar_sucesso(f"{host} -> {r_destino}  sucesso."))
@@ -49,12 +49,12 @@ def teste_de_ping_roteadores():
     
 def teste():
     texto = ["host2a", "host3b", "host4c", "host5d"]
-    
+
     for i in texto:
         print(Host.extrair_ip_hosts(i))
 
 if __name__ == "__main__":
     teste_de_ping_hosts()
-    teste_de_ping_roteadores()
-    # teste()
+    # teste_de_ping_roteadores()
+    # teste().
     print("Teste de ping concluído.")

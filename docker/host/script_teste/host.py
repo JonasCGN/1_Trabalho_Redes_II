@@ -58,4 +58,7 @@ class Host:
     
     @staticmethod
     def extrair_ip_hosts(host_name):
-        return int(''.join(filter(str.isdigit, host_name.split('host')[-1]))) - 1
+        base_ip = int(''.join(filter(str.isdigit, host_name.split('host')[-1][:-1])))
+        suffix = host_name[-1].lower()
+        offset = ord(suffix) - ord('a')
+        return f"{base_ip - 1}.{10 + offset}"
