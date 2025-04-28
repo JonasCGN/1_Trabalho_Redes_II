@@ -13,15 +13,15 @@ clean:
 
 teste_ping:
 	@cls
-	@cd docker/roteador/script_teste && python teste_ping.py
+	@cd docker/roteador/test && python teste_ping.py
 
 teste_rotas:
 	@cls
-	@cd docker/roteador/script_teste && python teste_rotas.py
+	@cd docker/roteador/test && python teste_rotas.py
 
 teste_vias:
 	@cls
-	@cd docker/roteador/script_teste && python teste_vias.py
+	@cd docker/roteador/test && python teste_vias.py
 
 teste_ping_host:
 	@cls

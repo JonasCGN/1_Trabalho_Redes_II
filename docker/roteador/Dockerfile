@@ -4,9 +4,8 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copiar os arquivos do roteador para dentro do container
-COPY roteador.py /app/roteador.py
-COPY dijkstra.py /app/dijkstra.py
-COPY script_teste/roteador.py /app/script_teste/roteador.py
+COPY main.py /app/main.py
+COPY classes/ /app/classes/
 COPY requirements.txt /app/
 
 # Instalar dependências
@@ -20,4 +19,4 @@ RUN apt update && apt install -y \
 RUN pip install -r requirements.txt
 
 # Comando para iniciar o roteador
-CMD ["python", "roteador.py"]
+CMD ["python", "main.py"]
