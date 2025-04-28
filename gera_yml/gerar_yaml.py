@@ -132,6 +132,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
                 ip_pai = ipaddress.IPv4Address(rede_pai['gateway']) + 3 + (i - (2 * parent + 1))
                 networks.append({'name': rede_pai['name'], 'ip': str(ip_pai)})
                 neighbors.append({'id': f'roteador{parent+1}', 'cost': 10})
+                
         elif topologia == "linha":
             rede_host = redes[i]
             ip_host_rede = ipaddress.IPv4Address(rede_host['gateway']) + 1
@@ -150,6 +151,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
                 ip_ant = ipaddress.IPv4Address(rede_ant['gateway']) + 3
                 networks.append({'name': rede_ant['name'], 'ip': str(ip_ant)})
                 neighbors.append({'id': f'roteador{i}', 'cost': 10})
+                
         else:
             raise ValueError(f"Topologia '{topologia}' não suportada.")
 
@@ -187,4 +189,4 @@ if __name__ == "__main__":
     os.system('pause')
     
     # Exemplo de uso:
-    gerar_yaml(5, 1, topologia=topologia) #Correto
+    gerar_yaml(10, 1, topologia=topologia)

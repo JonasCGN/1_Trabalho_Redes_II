@@ -47,7 +47,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador2
       - ENDERECO_IP=172.21.1.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador3":["172.21.2.2",10],"roteador4":["172.21.3.2",10],"roteador5":["172.21.4.2",10] }
+      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
     networks:
 
       rede2:
@@ -56,15 +56,6 @@ services:
       rede1:
         ipv4_address: 172.21.0.4
 
-      rede3:
-        ipv4_address: 172.21.2.4
-
-      rede4:
-        ipv4_address: 172.21.3.4
-
-      rede5:
-        ipv4_address: 172.21.4.4
-
 
   roteador3:
     <<: *router_base
@@ -72,7 +63,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador3
       - ENDERECO_IP=172.21.2.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador2":["172.21.1.2",10],"roteador4":["172.21.3.2",10],"roteador5":["172.21.4.2",10] }
+      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
     networks:
 
       rede3:
@@ -81,15 +72,6 @@ services:
       rede1:
         ipv4_address: 172.21.0.5
 
-      rede2:
-        ipv4_address: 172.21.1.5
-
-      rede4:
-        ipv4_address: 172.21.3.5
-
-      rede5:
-        ipv4_address: 172.21.4.5
-
 
   roteador4:
     <<: *router_base
@@ -97,7 +79,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador4
       - ENDERECO_IP=172.21.3.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador2":["172.21.1.2",10],"roteador3":["172.21.2.2",10],"roteador5":["172.21.4.2",10] }
+      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
     networks:
 
       rede4:
@@ -106,15 +88,6 @@ services:
       rede1:
         ipv4_address: 172.21.0.6
 
-      rede2:
-        ipv4_address: 172.21.1.6
-
-      rede3:
-        ipv4_address: 172.21.2.6
-
-      rede5:
-        ipv4_address: 172.21.4.6
-
 
   roteador5:
     <<: *router_base
@@ -122,7 +95,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador5
       - ENDERECO_IP=172.21.4.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador2":["172.21.1.2",10],"roteador3":["172.21.2.2",10],"roteador4":["172.21.3.2",10] }
+      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
     networks:
 
       rede5:
@@ -130,15 +103,6 @@ services:
 
       rede1:
         ipv4_address: 172.21.0.7
-
-      rede2:
-        ipv4_address: 172.21.1.7
-
-      rede3:
-        ipv4_address: 172.21.2.7
-
-      rede4:
-        ipv4_address: 172.21.3.7
 
 
 

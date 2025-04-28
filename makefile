@@ -1,4 +1,5 @@
 all:
+	@cd gera_yml && pip install --quiet -r requirements.txt
 	@cd gera_yml && python gerar_yaml.py
 	@cd gera_yml && python docker_compose_create.py
 	@docker-compose up --build
