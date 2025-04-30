@@ -11,10 +11,13 @@ class AtualizadorDeRotas:
     def atualizar_rota(self, tabela):
         for destino, prox_salto in tabela.items():
             
-            destino_ip = Manipulacao.extrair_subnet_roteador(destino)
-            prox_salto_ip = Manipulacao.extrair_ip_roteadores(prox_salto)
+            ip_destino = self.gerenciador_de_rotas.lsdb[destino]['ip']
+            ip_prox_salto = self.gerenciador_de_rotas.lsdb[prox_salto]['ip']
             
-            comando = f"ip route replace {destino_ip} via {prox_salto_ip}"
+            destino_subnet = Manipulacao.extrair_subnet_roteador_ip(ip_destino)
+            gateway_roteador = Manipulacao.extrair_ip_roteadores_ip(ip_prox_salto)
+            
+            comando = f"ip route replace {destino_subnet} via {gateway_roteador}"
             print(f"[{self.ROTEADOR_ID}] Executando: {comando}")
             
             result = subprocess.run(comando, shell=True, capture_output=True, text=True)

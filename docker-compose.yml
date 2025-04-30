@@ -22,7 +22,7 @@ services:
     environment:
       - ROTEADOR_ID=roteador1
       - ENDERECO_IP=172.21.0.2
-      - VIZINHOS={ "roteador2":["172.21.1.2",10],"roteador3":["172.21.2.2",10],"roteador4":["172.21.3.2",10],"roteador5":["172.21.4.2",10] }
+      - VIZINHOS={ "roteador6":["172.21.5.2",10],"roteador2":["172.21.1.2",10] }
     networks:
 
       rede1:
@@ -31,14 +31,8 @@ services:
       rede2:
         ipv4_address: 172.21.1.3
 
-      rede3:
-        ipv4_address: 172.21.2.3
-
-      rede4:
-        ipv4_address: 172.21.3.3
-
-      rede5:
-        ipv4_address: 172.21.4.3
+      rede6:
+        ipv4_address: 172.21.5.4
 
 
   roteador2:
@@ -47,11 +41,14 @@ services:
     environment:
       - ROTEADOR_ID=roteador2
       - ENDERECO_IP=172.21.1.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
+      - VIZINHOS={ "roteador1":["172.21.0.2",10],"roteador3":["172.21.2.2",10] }
     networks:
 
       rede2:
         ipv4_address: 172.21.1.2
+
+      rede3:
+        ipv4_address: 172.21.2.3
 
       rede1:
         ipv4_address: 172.21.0.4
@@ -63,14 +60,17 @@ services:
     environment:
       - ROTEADOR_ID=roteador3
       - ENDERECO_IP=172.21.2.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
+      - VIZINHOS={ "roteador2":["172.21.1.2",10],"roteador4":["172.21.3.2",10] }
     networks:
 
       rede3:
         ipv4_address: 172.21.2.2
 
-      rede1:
-        ipv4_address: 172.21.0.5
+      rede4:
+        ipv4_address: 172.21.3.3
+
+      rede2:
+        ipv4_address: 172.21.1.4
 
 
   roteador4:
@@ -79,14 +79,17 @@ services:
     environment:
       - ROTEADOR_ID=roteador4
       - ENDERECO_IP=172.21.3.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
+      - VIZINHOS={ "roteador3":["172.21.2.2",10],"roteador5":["172.21.4.2",10] }
     networks:
 
       rede4:
         ipv4_address: 172.21.3.2
 
-      rede1:
-        ipv4_address: 172.21.0.6
+      rede5:
+        ipv4_address: 172.21.4.3
+
+      rede3:
+        ipv4_address: 172.21.2.4
 
 
   roteador5:
@@ -95,14 +98,36 @@ services:
     environment:
       - ROTEADOR_ID=roteador5
       - ENDERECO_IP=172.21.4.2
-      - VIZINHOS={ "roteador1":["172.21.0.2",10] }
+      - VIZINHOS={ "roteador4":["172.21.3.2",10],"roteador6":["172.21.5.2",10] }
     networks:
 
       rede5:
         ipv4_address: 172.21.4.2
 
+      rede6:
+        ipv4_address: 172.21.5.3
+
+      rede4:
+        ipv4_address: 172.21.3.4
+
+
+  roteador6:
+    <<: *router_base
+    container_name: roteador6
+    environment:
+      - ROTEADOR_ID=roteador6
+      - ENDERECO_IP=172.21.5.2
+      - VIZINHOS={ "roteador5":["172.21.4.2",10],"roteador1":["172.21.0.2",10] }
+    networks:
+
+      rede6:
+        ipv4_address: 172.21.5.2
+
       rede1:
-        ipv4_address: 172.21.0.7
+        ipv4_address: 172.21.0.3
+
+      rede5:
+        ipv4_address: 172.21.4.4
 
 
 
@@ -116,6 +141,15 @@ services:
       rede1:
         ipv4_address: 172.21.0.10
 
+  host1b:
+    <<: *host_base
+    container_name: host1b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.0.2
+    networks:
+      rede1:
+        ipv4_address: 172.21.0.11
+
   host2a:
     <<: *host_base
     container_name: host2a
@@ -124,6 +158,15 @@ services:
     networks:
       rede2:
         ipv4_address: 172.21.1.10
+
+  host2b:
+    <<: *host_base
+    container_name: host2b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.1.2
+    networks:
+      rede2:
+        ipv4_address: 172.21.1.11
 
   host3a:
     <<: *host_base
@@ -134,6 +177,15 @@ services:
       rede3:
         ipv4_address: 172.21.2.10
 
+  host3b:
+    <<: *host_base
+    container_name: host3b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.2.2
+    networks:
+      rede3:
+        ipv4_address: 172.21.2.11
+
   host4a:
     <<: *host_base
     container_name: host4a
@@ -143,6 +195,15 @@ services:
       rede4:
         ipv4_address: 172.21.3.10
 
+  host4b:
+    <<: *host_base
+    container_name: host4b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.3.2
+    networks:
+      rede4:
+        ipv4_address: 172.21.3.11
+
   host5a:
     <<: *host_base
     container_name: host5a
@@ -151,6 +212,33 @@ services:
     networks:
       rede5:
         ipv4_address: 172.21.4.10
+
+  host5b:
+    <<: *host_base
+    container_name: host5b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.4.2
+    networks:
+      rede5:
+        ipv4_address: 172.21.4.11
+
+  host6a:
+    <<: *host_base
+    container_name: host6a
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.5.2
+    networks:
+      rede6:
+        ipv4_address: 172.21.5.10
+
+  host6b:
+    <<: *host_base
+    container_name: host6b
+    environment:
+      - ROTEADOR_CONECTADO= 172.21.5.2
+    networks:
+      rede6:
+        ipv4_address: 172.21.5.11
 
 
 networks:
@@ -189,3 +277,10 @@ networks:
       config:
         - subnet: 172.21.4.0/24
           gateway: 172.21.4.1
+
+  rede6:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.5.0/24
+          gateway: 172.21.5.1

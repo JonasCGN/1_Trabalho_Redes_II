@@ -17,11 +17,6 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
     subnets = list(base_ip.subnets(new_prefix=24))
     # Para topologia tree, separamos as subnets
     
-    if topologia == "tree":
-        subnets_links = subnets[num_roteadores:]  # Subnets para links p2p
-        subnets = subnets[:num_roteadores]         # Subnets para redes dos hosts
-        rede_idx_links = 0                         # Índice para percorrer subnets_links
-        
     # Geração das redes
     for i in range(num_roteadores):
         rede_nome = f"rede{i+1}"
@@ -176,17 +171,17 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
 if __name__ == "__main__":
     topologias = [
         "anel",
-        "estrela",
-        "totalmente_conectada",
+        # "estrela",
+        # "totalmente_conectada",
         "tree",
-        "linha"
+        # "linha"
     ]
     
-    valor = random.randint(0, len(topologias) - 1)
-    topologia = topologias[valor]
+    # valor = random.randint(0, len(topologias) - 1)
+    topologia = topologias[0]
     
     print(f"Topologia escolhida: {topologia}")
     os.system('pause')
     
     # Exemplo de uso:
-    gerar_yaml(10, 1, topologia=topologia)
+    gerar_yaml(6, 2, topologia=topologia)

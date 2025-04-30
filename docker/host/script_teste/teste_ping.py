@@ -55,6 +55,4 @@ def teste():
 
 if __name__ == "__main__":
     teste_de_ping_hosts()
-    # teste_de_ping_roteadores()
-    # teste().
     print("Teste de ping concluído.")

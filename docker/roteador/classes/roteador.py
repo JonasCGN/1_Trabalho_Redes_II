@@ -47,3 +47,7 @@ class RoteadorApp:
         self.event.set()
         for t in self.threads:
             t.join()
+            
+if __name__ == "__main__":
+    roteador_app = RoteadorApp()
+    
