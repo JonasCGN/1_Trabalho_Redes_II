@@ -19,12 +19,13 @@ class LSAManager:
             lsa = {
                 "id": self.ROTEADOR_ID,
                 "ip": self.ENDERECO_IP,
-                "vizinhos": {viz: {"ip": ip, "custo": custo} for viz, (ip, custo) in self.vizinhos_manager.VIZINHOS.items()},
+                "vizinhos": {viz: {"ip": ip, "custo": custo} for viz, (ip, custo) in self.vizinhos_manager.VIZINHOS.items() if viz not in self.vizinhos_manager.vizinhos_inativos},
                 "seq": self.seq
             }
             mensagem = json.dumps(lsa).encode()
             for viz, (ip, _) in self.vizinhos_manager.VIZINHOS.items():
-                self.sock.sendto(mensagem, (ip, PORTA_LSA))
+                if viz not in self.vizinhos_manager.vizinhos_inativos:
+                    self.sock.sendto(mensagem, (ip, PORTA_LSA))
             event.wait(0.5)
 
     def receber_lsa(self, lsdb, event):
@@ -40,7 +41,7 @@ class LSAManager:
                 if origem not in lsdb or lsa["seq"] > lsdb[origem]["seq"]:
                     lsdb[origem] = lsa
                     for viz, (ip, _) in self.vizinhos_manager.VIZINHOS.items():
-                        if ip != sender_ip:
+                        if ip != sender_ip and viz not in self.vizinhos_manager.vizinhos_inativos:
                             recv_sock.sendto(dados, (ip, PORTA_LSA))
                             print(f"[{self.ROTEADOR_ID}] Encaminhando LSA para {viz} ({ip})")
             except socket.timeout:

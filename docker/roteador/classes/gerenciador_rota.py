@@ -24,6 +24,8 @@ class GerenciadorDeRotas:
     def dijkstra(self, origem):
         grafo = self._gerar_grafo()
 
+        print(f"[Dijkstra] Inativos: {self.inativos}")
+        
         if origem not in grafo:
             print(f"[Dijkstra] Origem {origem} não encontrada no grafo.")
             return {}
