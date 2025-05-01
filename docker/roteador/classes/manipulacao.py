@@ -48,18 +48,29 @@ class Manipulacao:
         return linhas
     
     @staticmethod
-    def traduzir_caminho(roteador,caminho):
+    def traduzir_caminho(roteador,caminho,qtd_roteadores=0):
         hops = Manipulacao.extrair_linhas(caminho)
         traducao = []
-        traducao.append(roteador)
-        for hop in hops:
+        traducao.append(roteador)           
+        for hop in hops[1:]:
             if 'roteador' in hop:
                 nome_roteador = hop.split()[1].split('.')[0]
                 traducao.append(nome_roteador)
             elif hop:
-                numero_roteador = int(hop.split('(')[1].split(')')[0].split('.')[2]) + 1
-                traducao.append(f'roteador{numero_roteador}',)
-                
+                n1,n2 = hop.split('(')[1].split(')')[0].split('.')[2:]
+                numero_roteador = 0
+                if n2 == '4':
+                    numero_roteador = int(n1) + 2
+                    if numero_roteador > qtd_roteadores:
+                        numero_roteador = numero_roteador % qtd_roteadores
+                elif n2 == '3':
+                    numero_roteador = int(n1)
+                    if numero_roteador > qtd_roteadores:
+                        numero_roteador = numero_roteador % qtd_roteadores
+                else:
+                    numero_roteador = int(n1) + 1
+                traducao.append(f'roteador{numero_roteador}')
+        
         return ' -> '.join(traducao)
     
 if __name__ == "__main__":

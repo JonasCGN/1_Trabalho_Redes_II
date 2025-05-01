@@ -19,13 +19,14 @@ class RoteadorApp:
 
     def atualizar_tabela(self):
         while not self.event.is_set():
-            if not self.vizinhos_manager.verifica_roteadores_ativos(self.lsdb):
-                self.rota_manager.recalcular_rotas(self.vizinhos_manager.vizinhos_inativos)
+            # if not self.vizinhos_manager.verifica_roteadores_ativos(self.lsdb):
+            self.rota_manager.recalcular_rotas(self.vizinhos_manager.vizinhos_inativos)
             self.event.wait(0.1)
 
     def monitorar_vizinhos(self):
         while not self.event.is_set():
             self.vizinhos_manager.atualiza_status_vizinhos()
+            # if self.vizinhos_manager.vizinhos_inativos:
             self.rota_manager.recalcular_rotas(self.vizinhos_manager.vizinhos_inativos)
             self.event.wait(0.5)
 

@@ -17,7 +17,8 @@ def teste_de_rotas():
                     comando = f"docker exec {r_origem} traceroute {Manipulacao.extrair_ip_gateway(r_destino)}"
                     result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
                     if result.returncode == 0:
-                        caminho = Manipulacao.traduzir_caminho(r_origem,result.stdout)
+                        # print(Mensagem.formatar_mensagem(r_destino,(255,255,0)),':',Mensagem.formatar_sucesso(result.stdout))
+                        caminho = Manipulacao.traduzir_caminho(r_origem,result.stdout,len(roteadores))
                         print(Mensagem.formatar_mensagem(r_destino,(255,255,0)),':',Mensagem.formatar_sucesso(caminho))
                 except subprocess.CalledProcessError as e:
                     print(Mensagem.formatar_erro(f"{r_origem} -> {r_destino} falhou."))
@@ -31,13 +32,16 @@ def teste_de_rotas():
 
 def teste():
     try:
-        comando = f"docker exec roteador2 traceroute 172.21.7.1"
+        # roteador1 : roteador5 -> roteador4 -> roteador3 -> roteador3 -> roteador1
+        comando = f"docker exec roteador5 traceroute 172.21.0.1"
         result = subprocess.run(comando, shell=True, check=True, text=True, capture_output=True)
         if result.returncode == 0:
-            print(Manipulacao.traduzir_caminho('roteador2',result.stdout))
+            caminho = Manipulacao.traduzir_caminho('roteador5',result.stdout,len(Manipulacao.roteadores_encontrados()))
+            print(Mensagem.formatar_sucesso(caminho))
     except subprocess.CalledProcessError as e:
         print(Mensagem.formatar_erro(f"roteador2 -> 172.21.7.1 falhou."))
 
 if __name__ == "__main__":
     teste_de_rotas()
+    # teste()
     print("Teste de rotas concluído.")

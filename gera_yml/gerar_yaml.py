@@ -181,7 +181,7 @@ if __name__ == "__main__":
     topologia = topologias[0]
     
     print(f"Topologia escolhida: {topologia}")
-    os.system('pause')
+    # os.system('pause')
     
     # Exemplo de uso:
     gerar_yaml(6, 2, topologia=topologia)
