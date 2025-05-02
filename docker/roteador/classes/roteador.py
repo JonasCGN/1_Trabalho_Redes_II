@@ -26,8 +26,8 @@ class RoteadorApp:
     def monitorar_vizinhos(self):
         while not self.event.is_set():
             self.vizinhos_manager.atualiza_status_vizinhos()
-            # if self.vizinhos_manager.vizinhos_inativos:
-            self.rota_manager.recalcular_rotas(self.vizinhos_manager.vizinhos_inativos)
+            if self.vizinhos_manager.vizinhos_inativos:
+                self.rota_manager.recalcular_rotas(self.vizinhos_manager.vizinhos_inativos)
             self.event.wait(0.5)
 
     def iniciar_threads(self):

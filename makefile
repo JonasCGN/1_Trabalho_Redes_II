@@ -23,3 +23,6 @@ teste_vias:
 
 teste_ping_host:
 	@cd docker/host/script_teste && python teste_ping.py
+
+teste_stress:
+	@cd docker/roteador/test && python teste_stress.py

@@ -15,9 +15,7 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
 
     base_ip = ipaddress.IPv4Network("172.21.0.0/16")
     subnets = list(base_ip.subnets(new_prefix=24))
-    # Para topologia tree, separamos as subnets
     
-    # Geração das redes
     for i in range(num_roteadores):
         rede_nome = f"rede{i+1}"
         subnet = subnets[i]
@@ -41,9 +39,6 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
                 'ip': str(ip_host)
             })
 
-    # Ate aqui correto
-    
-    # Criando os roteadores
     for i in range(num_roteadores):
         id_roteador = f"roteador{i+1}"
 

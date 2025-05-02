@@ -17,7 +17,7 @@ class AtualizadorDeRotas:
             destino_subnet = Manipulacao.extrair_subnet_roteador_ip(ip_destino)
             gateway_roteador = Manipulacao.extrair_ip_roteadores_ip(ip_prox_salto)
             
-            comando = f"ip route replace {destino_subnet} via {gateway_roteador}"
+            comando = f"ip route replace {destino_subnet} via {gateway_roteador} proto static"
             print(f"[{self.ROTEADOR_ID}] Executando: {comando}")
             
             result = subprocess.run(comando, shell=True, capture_output=True, text=True)

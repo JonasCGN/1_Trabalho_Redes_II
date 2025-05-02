@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     net-tools \
     iputils-ping \
-    traceroute  
+    traceroute  \
+    iperf3
 
 # Comando padrão (simples)
 CMD ["/app/start.sh"]
