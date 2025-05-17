@@ -2,6 +2,7 @@ import os
 import random
 import yaml
 import ipaddress
+import sys
 
 def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
     if num_roteadores < 3:
@@ -163,20 +164,31 @@ def gerar_yaml(num_roteadores, hosts_por_rede, topologia="anel"):
 
     print(f"✅ Arquivo 'config.yaml' gerado com sucesso para topologia '{topologia}'!")
 
+class Args:
+    def __init__(self, qtd_roteador, qtd_hosts, topologia):
+        self.qtd_roteador = qtd_roteador
+        self.qtd_hosts = qtd_hosts
+        self.topologia = topologia
+
+def ler_args(argc, argv):
+    if argc < 3:
+        print("Uso: <qtd_roteador> <qtd_hosts> <topologia>")
+        qtd_roteador = 6
+        qtd_hosts = 2
+        topologia = "anel"
+        print(f"Usando valores padrão: qtd_roteador={qtd_roteador}, qtd_hosts={qtd_hosts}, topologia={topologia}")	
+    else:
+        print(f"Uso: {argv[0]} <qtd_roteador> <qtd_hosts> <topologia>")
+        print(argv)
+        qtd_roteador = int(argv[1])
+        qtd_hosts = int(argv[2]) 
+        topologia = argv[3] if argc > 3 else "anel"
+    return Args(qtd_roteador, qtd_hosts, topologia)
+
+def main():
+    args = ler_args(len(sys.argv), sys.argv)
+    
+    gerar_yaml(args.qtd_roteador, args.qtd_hosts, topologia=args.topologia)
+    
 if __name__ == "__main__":
-    topologias = [
-        "anel",
-        # "estrela",
-        # "totalmente_conectada",
-        "tree",
-        # "linha"
-    ]
-    
-    # valor = random.randint(0, len(topologias) - 1)
-    topologia = topologias[0]
-    
-    print(f"Topologia escolhida: {topologia}")
-    # os.system('pause')
-    
-    # Exemplo de uso:
-    gerar_yaml(6, 2, topologia=topologia)
+    main()

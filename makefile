@@ -1,14 +1,15 @@
 all:
+# @docker-compose down 
 	@docker-compose up --build
 	
 gerar_compose:
 	@cd gera_yml && pip install --quiet -r requirements.txt
-	@cd gera_yml && python gerar_yaml.py
+	@cd gera_yml && python gerar_yaml.py $(QTD_ROUTER) $(QTD_HOST) $(TOPOLOGIA)
 	@cd gera_yml && python docker_compose_create.py
 
 down:
 	@docker-compose down 
-	
+
 clean:
 	docker compose down --rmi all --volumes --remove-orphans
 
@@ -26,3 +27,8 @@ teste_ping_host:
 
 teste_stress:
 	@cd docker/roteador/test && python teste_stress.py
+
+
+teste_convergencia:
+	@python docker/roteador/test/teste_convergencia.py
+	@python gerar_grafico/gerar_grafico.py

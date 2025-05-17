@@ -3,3 +3,6 @@ __pycache__
 backup
 backup_sem_sleep
 files
+resultado_convergencia.csv
+grafico_roteadores_tempo.png
+teste_stress.py

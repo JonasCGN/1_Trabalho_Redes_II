@@ -3,8 +3,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+COPY host.py /app/host.py
 
 # Atualizar e instalar pacotes necessários
 RUN apt-get update && apt-get install -y \
@@ -15,4 +14,4 @@ RUN apt-get update && apt-get install -y \
     iperf3
 
 # Comando padrão (simples)
-CMD ["/app/start.sh"]
+CMD ["python", "host.py"]
