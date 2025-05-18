@@ -4,6 +4,7 @@ class GerenciadorDeRotas:
     def __init__(self, lsdb,inativos=[]):
         self.lsdb = lsdb
         self.inativos = inativos
+        self.tabela_de_rotas = {}
 
     def set_inativos(self, inativos):
         self.inativos = inativos
@@ -24,8 +25,6 @@ class GerenciadorDeRotas:
     def dijkstra(self, origem):
         grafo = self._gerar_grafo()
 
-        print(f"[Dijkstra] Inativos: {self.inativos}")
-        
         if origem not in grafo:
             print(f"[Dijkstra] Origem {origem} não encontrada no grafo.")
             return {}
@@ -70,7 +69,8 @@ class GerenciadorDeRotas:
         self.tabela_de_rotas = {}
         for roteador in self.lsdb.keys():
             self.tabela_de_rotas[roteador] = self.dijkstra(roteador)
-
+        print(f"[Tabela de Rotas] {self.tabela_de_rotas}")
+        
     def calcular_caminho(self, origem, destino, caminho_atual=None):
         if caminho_atual is None:
             caminho_atual = [origem]
@@ -87,79 +87,103 @@ class GerenciadorDeRotas:
         return self.calcular_caminho(proximo_salto, destino, novo_caminho)
 
     def exibir_caminhos(self):
-        for origem in self.tabela_de_rotas:
-            print(f"✅ Roteador: {origem}")
-            for destino in self.tabela_de_rotas[origem]:
-                caminho = self.calcular_caminho(origem, destino)
-                if caminho:
-                    caminho_completo = " ➜ ".join(caminho)
-                    print(f"Destino: {destino}\tPróximo Salto: {self.tabela_de_rotas[origem][destino]}\tCaminho Completo: {caminho_completo}")
-                else:
-                    print(f"Destino: {destino}\tCaminho inválido")
-            print()
+        vizinhos = {}
+        rotas = {origem: {destino: [origem] for destino in self.tabela_de_rotas if origem != destino} for origem in self.tabela_de_rotas}
+        
+        for origem, destinos in self.tabela_de_rotas.items():
+            vizinhos[origem] = []
+            for destino, proximo in destinos.items():
+                vizinhos[origem].append(proximo)
 
+        for origem, vizinhos_lista in vizinhos.items():
+            for vizinho in vizinhos_lista:
+                rotas[origem][vizinho] = [origem,vizinho]
+        
+        for origem, destinos in self.tabela_de_rotas.items():
+            for destino, proximo in destinos.items():
+                caminho = [origem]
+                while proximo and proximo != destino:
+                    caminho.append(proximo)
+                    proximo = self.tabela_de_rotas.get(proximo, {}).get(destino)
+                caminho.append(destino)
+                rotas[origem][destino] = caminho
+        
+        print(f"[Rotas] {rotas}")
+        
+        for origem,destinos in rotas.items():
+            for destino,proximo in destinos.items():
+                print(f"[Caminho] {origem} -> {destino}: {' -> '.join(proximo)}")
+            print("\n")
+    
+    def mostrar_rotas(self,rota_dijkstra):
+        for origem,destino in rota_dijkstra.items():
+            print(f"[Rota] {origem} -> {destino}")
+    
 if __name__ == "__main__":
     
     # Exemplo de uso
     lsdb = {
-    'roteador1': {
-        'id': 'roteador1',
-        'ip': '172.21.0.2',
-        'vizinhos': {
-            'roteador5': {'ip': '172.21.4.2', 'custo': 10},
-            'roteador2': {'ip': '172.21.1.2', 'custo': 10}
+        'roteador1': {
+            'id': 'roteador1',
+            'ip': '172.21.0.2',
+            'vizinhos': {
+                'roteador5': {'ip': '172.21.4.2', 'custo': 10},
+                'roteador2': {'ip': '172.21.1.2', 'custo': 10}
+            },
+            'seq': 1
         },
-        'seq': 1
-    },
-    'roteador2': {
-        'id': 'roteador2',
-        'ip': '172.21.1.2',
-        'vizinhos': {
-            'roteador1': {'ip': '172.21.0.2', 'custo': 10},
-            'roteador3': {'ip': '172.21.2.2', 'custo': 10}
+        'roteador2': {
+            'id': 'roteador2',
+            'ip': '172.21.1.2',
+            'vizinhos': {
+                'roteador1': {'ip': '172.21.0.2', 'custo': 10},
+                'roteador3': {'ip': '172.21.2.2', 'custo': 10}
+            },
+            'seq': 2
         },
-        'seq': 2
-    },
-    'roteador3': {
-        'id': 'roteador3',
-        'ip': '172.21.2.2',
-        'vizinhos': {
-            'roteador2': {'ip': '172.21.1.2', 'custo': 10},
-            'roteador4': {'ip': '172.21.3.2', 'custo': 10}
+        'roteador3': {
+            'id': 'roteador3',
+            'ip': '172.21.2.2',
+            'vizinhos': {
+                'roteador2': {'ip': '172.21.1.2', 'custo': 10},
+                'roteador4': {'ip': '172.21.3.2', 'custo': 10}
+            },
+            'seq': 3
         },
-        'seq': 3
-    },
-    'roteador4': {
-        'id': 'roteador4',
-        'ip': '172.21.3.2',
-        'vizinhos': {
-            'roteador3': {'ip': '172.21.2.2', 'custo': 10},
-            'roteador5': {'ip': '172.21.4.2', 'custo': 10}
+        'roteador4': {
+            'id': 'roteador4',
+            'ip': '172.21.3.2',
+            'vizinhos': {
+                'roteador3': {'ip': '172.21.2.2', 'custo': 10},
+                'roteador5': {'ip': '172.21.4.2', 'custo': 10}
+            },
+            'seq': 4
         },
-        'seq': 4
-    },
-    'roteador5': {
-        'id': 'roteador5',
-        'ip': '172.21.4.2',
-        'vizinhos': {
-            'roteador4': {'ip': '172.21.3.2', 'custo': 10},
-            'roteador1': {'ip': '172.21.0.2', 'custo': 10}
-        },
-        'seq': 5
+        'roteador5': {
+            'id': 'roteador5',
+            'ip': '172.21.4.2',
+            'vizinhos': {
+                'roteador4': {'ip': '172.21.3.2', 'custo': 10},
+                'roteador1': {'ip': '172.21.0.2', 'custo': 10}
+            },
+            'seq': 5
+        }
     }
-}
 
     # Lista de roteadores inativos para teste
-    inativos = ['roteador3']
+    inativos = []
 
     # print("Vizinhos acessíveis:", verifica_vizinhos("roteador1", lsdb, inativos))
     
     lista_caminhos = {}
     roteador = GerenciadorDeRotas(lsdb,inativos)
     # Atualiza as rotas levando em consideração os inativos
-    # for roteador in lsdb.keys():
-    #     # print(roteador)
-    #     lista_caminhos[roteador] = dijkstra(roteador, lsdb, inativos)
     
-    print(roteador.dijkstra('roteador4'))
-    # print(roteador.dijkstra('roteador4', lsdb, []))
+    # roteador.calcular_todas_rotas()
+    # roteador.exibir_caminhos()
+    
+    for origem in lsdb.keys():
+        print(f"[Roteador] {origem}")
+        roteador.mostrar_rotas(roteador.dijkstra(origem))
+        print("\n")
+    
